@@ -904,17 +904,23 @@
                         <div class="filter-info">Clique nas barras dos Top 10</div>
                     </div>
                     <div class="filter-group">
-                        <label class="filter-label">🎯 Status</label>
+                        <label class="filter-label">🎯 Status / Situação</label>
                         <select id="filterStatus" class="filter-select">
                             <option value="TODOS">Todos</option>
                             <option value="verde">🟢 Excelente (≥80%)</option>
                             <option value="amarelo">🟡 Atenção (50-79%)</option>
                             <option value="vermelho">🔴 Crítico (<50%)</option>
+                            <option value="OK">✅ Somente OK (≥80%)</option>
+                            <option value="PENDENTE">⚠️ Somente com Pendências</option>
+                            <option value="CRITICO_ATENCAO">🔴🟡 Críticos + Atenção (<80%)</option>
                         </select>
                         <div class="filter-info">Clique nas fatias do gráfico Pizza</div>
                     </div>
                 </div>
-                <button class="clear-filters-btn" onclick="clearAllFilters()">🔄 Limpar Todos os Filtros</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="apply-filters-btn" onclick="applyFiltersAndUpdate()" style="flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';">✅ APLICAR FILTROS</button>
+                    <button class="clear-filters-btn" onclick="clearAllFilters()" style="flex: 1;">🔄 Limpar Filtros</button>
+                </div>
             </div>
 
             <!-- Gráficos -->
@@ -1505,7 +1511,8 @@
             });
         }
 
-        // FILTROS INTERATIVOS - Atualiza tudo automaticamente
+        // FILTROS INTERATIVOS - DESATIVADO (Agora usa botão APLICAR)
+        /*
         document.getElementById('filterRegional').addEventListener('change', () => {
             activeFilters.regional = document.getElementById('filterRegional').value === 'TODOS' ? null : document.getElementById('filterRegional').value;
             applyFiltersAndUpdate();
@@ -1521,18 +1528,26 @@
             activeFilters.status = statusValue === 'TODOS' ? null : statusValue;
             applyFiltersAndUpdate();
         });
+        */
 
         function applyFiltersAndUpdate() {
-            if (!dashboardData) return;
+            if (!dashboardData) {
+                console.log('❌ applyFiltersAndUpdate: dashboardData é null');
+                return;
+            }
 
             const regional = document.getElementById('filterRegional').value;
             const svc = document.getElementById('filterSVC').value;
             const status = document.getElementById('filterStatus').value;
+            
+            console.log('🔍 Filtros aplicados:', { regional, svc, status });
 
             let filtered = dashboardData.detalhamento;
+            console.log('📊 Total ANTES dos filtros:', filtered.length);
 
             if (regional !== 'TODOS') {
                 filtered = filtered.filter(d => d.regional === regional);
+                console.log('🎯 Filtro Regional aplicado:', regional, '- Restam:', filtered.length);
                 document.getElementById('filterRegional').classList.add('active');
             } else {
                 document.getElementById('filterRegional').classList.remove('active');
@@ -1540,17 +1555,39 @@
 
             if (svc !== 'TODOS') {
                 filtered = filtered.filter(d => d.svc === svc);
+                console.log('🎯 Filtro SVC aplicado:', svc, '- Restam:', filtered.length);
                 document.getElementById('filterSVC').classList.add('active');
             } else {
                 document.getElementById('filterSVC').classList.remove('active');
             }
 
             if (status !== 'TODOS') {
-                filtered = filtered.filter(d => d.cor === status);
+                console.log('🎯 Aplicando filtro de Status:', status);
+                
+                if (status === 'OK') {
+                    // ✅ Somente OK (≥80%)
+                    filtered = filtered.filter(d => d.perc_realizado >= 80);
+                    console.log('   → Filtro OK: mostrando apenas ≥80% - Restam:', filtered.length);
+                } else if (status === 'PENDENTE') {
+                    // ⚠️ Somente com Pendências (faltando > 0)
+                    filtered = filtered.filter(d => d.faltando > 0);
+                    console.log('   → Filtro PENDENTE: mostrando apenas com faltando > 0 - Restam:', filtered.length);
+                } else if (status === 'CRITICO_ATENCAO') {
+                    // 🔴🟡 Críticos + Atenção (<80%)
+                    filtered = filtered.filter(d => d.perc_realizado < 80);
+                    console.log('   → Filtro CRITICO_ATENCAO: mostrando apenas <80% - Restam:', filtered.length);
+                } else {
+                    // Filtros antigos: verde, amarelo, vermelho
+                    filtered = filtered.filter(d => d.cor === status);
+                    console.log('   → Filtro cor:', status, '- Restam:', filtered.length);
+                }
                 document.getElementById('filterStatus').classList.add('active');
             } else {
                 document.getElementById('filterStatus').classList.remove('active');
             }
+            
+            console.log('✅ Total DEPOIS dos filtros:', filtered.length);
+            console.log('---');
 
             // Atualizar TUDO
             updateCharts(filtered);
@@ -1560,9 +1597,10 @@
         }
 
         function updateKPIsFromFiltered(filtered) {
-            const totalVeiculos = filtered.reduce((sum, d) => sum + d.total_carros, 0);
+            // Usar TOTAL_VALIDOS (sem NÃO CONSTA) ao invés de total_carros
+            const totalVeiculos = filtered.reduce((sum, d) => sum + d.total_validos, 0);
             const realizados = filtered.reduce((sum, d) => sum + d.realizados, 0);
-            const faltando = totalVeiculos - realizados;
+            const faltando = filtered.reduce((sum, d) => sum + d.faltando, 0);
             const taxa = totalVeiculos > 0 ? ((realizados / totalVeiculos * 100).toFixed(2)) : 0;
 
             document.getElementById('kpiTotal').textContent = totalVeiculos;
@@ -1590,39 +1628,45 @@
 
         // FUNÇÃO PARA APLICAR/REMOVER FILTRO (TOGGLE) AO CLICAR NO GRÁFICO
         function applyChartFilter(type, value) {
+            console.log(`👆 Clique no gráfico: ${type} = ${value}`);
+            console.log(`🔍 Estado atual: activeFilters[${type}] = ${activeFilters[type]}`);
+            
             // Toggle: se clicar no mesmo item, desativa o filtro
-            if (activeFilters[type] === value) {
-                // REMOVER filtro
-                if (type === 'regional') {
-                    document.getElementById('filterRegional').value = 'TODOS';
-                    activeFilters.regional = null;
-                } else if (type === 'svc') {
-                    document.getElementById('filterSVC').value = 'TODOS';
-                    activeFilters.svc = null;
-                } else if (type === 'status') {
+            const currentValue = document.getElementById(`filter${type.charAt(0).toUpperCase() + type.slice(1)}`).value;
+            console.log(`🔍 Valor atual do select: ${currentValue}`);
+            
+            if (type === 'status') {
+                // Para status, precisa converter o valor do gráfico para o valor do select
+                const statusMap = {
+                    '🟢 Excelente': 'verde',
+                    '🟡 Atenção': 'amarelo',
+                    '🔴 Crítico': 'vermelho'
+                };
+                const mappedValue = statusMap[value] || value;
+                
+                if (currentValue === mappedValue) {
+                    // REMOVER filtro
+                    console.log(`❌ Removendo filtro de ${type}`);
                     document.getElementById('filterStatus').value = 'TODOS';
-                    activeFilters.status = null;
+                } else {
+                    // APLICAR filtro
+                    console.log(`✅ Aplicando filtro de ${type}: ${mappedValue}`);
+                    document.getElementById('filterStatus').value = mappedValue;
                 }
             } else {
-                // APLICAR filtro
-                if (type === 'regional') {
-                    document.getElementById('filterRegional').value = value;
-                    activeFilters.regional = value;
-                } else if (type === 'svc') {
-                    document.getElementById('filterSVC').value = value;
-                    activeFilters.svc = value;
-                } else if (type === 'status') {
-                    const statusMap = {
-                        '🟢 Excelente': 'verde',
-                        '🟡 Atenção': 'amarelo',
-                        '🔴 Crítico': 'vermelho'
-                    };
-                    const statusValue = statusMap[value];
-                    document.getElementById('filterStatus').value = statusValue || 'TODOS';
-                    activeFilters.status = statusValue || null;
+                // Para regional e svc
+                if (currentValue === value) {
+                    // REMOVER filtro
+                    console.log(`❌ Removendo filtro de ${type}`);
+                    document.getElementById(`filter${type.charAt(0).toUpperCase() + type.slice(1)}`).value = 'TODOS';
+                } else {
+                    // APLICAR filtro
+                    console.log(`✅ Aplicando filtro de ${type}: ${value}`);
+                    document.getElementById(`filter${type.charAt(0).toUpperCase() + type.slice(1)}`).value = value;
                 }
             }
             
+            // Chamar a função de aplicar filtros
             applyFiltersAndUpdate();
         }
 
