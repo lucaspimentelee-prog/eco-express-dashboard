@@ -110,56 +110,56 @@
         }
 
         /* Botões Flutuantes */
-        .floating-buttons {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            animation: scaleIn 0.5s ease-out 0.3s both;
-        }
-
-        .floating-buttons.hidden {
-            display: none;
-        }
-
-        .btn-float {
-            background: linear-gradient(135deg, #7CB342 0%, #558B2F 100%);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(124, 179, 66, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-
-        .btn-float:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 6px 30px rgba(124, 179, 66, 0.6);
-            animation: glow 1.5s infinite;
-        }
-
-        .btn-refresh {
-            background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);
-            box-shadow: 0 4px 20px rgba(66, 165, 245, 0.4);
-        }
-
-        .btn-refresh:hover {
-            box-shadow: 0 6px 30px rgba(66, 165, 245, 0.6);
-        }
-
-        .file-input {
-            display: none;
-        }
+        /* REMOVIDO -         .floating-buttons { */
+        /* REMOVIDO -             position: fixed; */
+        /* REMOVIDO -             bottom: 30px; */
+        /* REMOVIDO -             right: 30px; */
+        /* REMOVIDO -             z-index: 999; */
+        /* REMOVIDO -             display: flex; */
+        /* REMOVIDO -             flex-direction: column; */
+        /* REMOVIDO -             gap: 15px; */
+        /* REMOVIDO -             animation: scaleIn 0.5s ease-out 0.3s both; */
+        /* REMOVIDO -         } */
+        /* REMOVIDO -  */
+        /* REMOVIDO -         .floating-buttons.hidden { */
+        /* REMOVIDO -             display: none; */
+        /* REMOVIDO -         } */
+        /* REMOVIDO -  */
+        /* REMOVIDO -         .btn-float { */
+        /* REMOVIDO -             background: linear-gradient(135deg, #7CB342 0%, #558B2F 100%); */
+        /* REMOVIDO -             color: white; */
+        /* REMOVIDO -             border: none; */
+        /* REMOVIDO -             padding: 15px 25px; */
+        /* REMOVIDO -             border-radius: 50px; */
+        /* REMOVIDO -             font-size: 16px; */
+        /* REMOVIDO -             font-weight: 600; */
+        /* REMOVIDO -             cursor: pointer; */
+        /* REMOVIDO -             box-shadow: 0 4px 20px rgba(124, 179, 66, 0.4); */
+        /* REMOVIDO -             display: flex; */
+        /* REMOVIDO -             align-items: center; */
+        /* REMOVIDO -             gap: 10px; */
+        /* REMOVIDO -             transition: all 0.3s; */
+        /* REMOVIDO -             white-space: nowrap; */
+        /* REMOVIDO -         } */
+        /* REMOVIDO -  */
+        /* REMOVIDO -         .btn-float:hover { */
+        /* REMOVIDO -             transform: translateY(-3px) scale(1.05); */
+        /* REMOVIDO -             box-shadow: 0 6px 30px rgba(124, 179, 66, 0.6); */
+        /* REMOVIDO -             animation: glow 1.5s infinite; */
+        /* REMOVIDO -         } */
+        /* REMOVIDO -  */
+        /* REMOVIDO -         .btn-refresh { */
+        /* REMOVIDO -             background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%); */
+        /* REMOVIDO -             box-shadow: 0 4px 20px rgba(66, 165, 245, 0.4); */
+        /* REMOVIDO -         } */
+        /* REMOVIDO -  */
+        /* REMOVIDO -         .btn-refresh:hover { */
+        /* REMOVIDO -             box-shadow: 0 6px 30px rgba(66, 165, 245, 0.6); */
+        /* REMOVIDO -         } */
+        /* REMOVIDO -  */
+        /* REMOVIDO -         .file-input { */
+        /* REMOVIDO -             display: none; */
+        /* REMOVIDO -         } */
 
         /* Container */
         .container {
@@ -591,6 +591,31 @@
             transform: scale(1.1);
             background: #ffcdd2;
         }
+        
+        /* Placa PENDENTE (vermelha - padrão) */
+        .placa-badge.placa-pendente {
+            background: white;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        
+        .placa-badge.placa-pendente:hover {
+            background: #ffcdd2;
+        }
+        
+        /* Placa NÃO CONSTA (cinza/azul) */
+        .placa-badge.placa-nao-consta {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1565c0;
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        .placa-badge.placa-nao-consta:hover {
+            background: #bbdefb;
+            opacity: 1;
+        }
 
         /* Loading */
         .loading-overlay {
@@ -797,18 +822,6 @@
         <img src="https://drive.google.com/thumbnail?id=1It3AAE7Ybl-K3PYmsalCWG02p9KW4_FI&sz=w400" alt="Mascote" class="mascote" onerror="this.style.display='none'">
     </div>
 
-    <!-- Floating Buttons -->
-    <div class="floating-buttons" id="floatingButtons">
-        <button class="btn-float btn-refresh" onclick="loadFromGoogleSheets()" id="btnRefresh">
-            <span>🔄</span>
-            <span>Atualizar Dados</span>
-        </button>
-        <button class="btn-float" onclick="document.getElementById('fileInput').click()" id="btnUpload">
-            <span>📤</span>
-            <span>Upload Excel</span>
-        </button>
-        <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls">
-    </div>
 
     <!-- Loading -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -824,9 +837,17 @@
         <div class="welcome-screen" id="welcomeScreen">
             <div class="welcome-icon">🚀</div>
             <div class="welcome-title">Bem-vindo ao ECO EXPRESS CHECKLIST!</div>
-            <div class="welcome-text">
+            <div class="welcome-text" id="welcomeText">
                 Carregando dados automaticamente do Google Sheets...<br>
                 Clique nos gráficos para filtrar e clique novamente para remover o filtro.
+            </div>
+            <div style="margin-top: 30px; display: none;" id="uploadOption">
+                <button class="btn-start" onclick="document.getElementById('fileInput').click()">
+                    📁 Fazer Upload de Excel
+                </button>
+                <div style="font-size: 12px; color: #999; margin-top: 15px;">
+                    Arraste e solte o arquivo Excel aqui ou clique no botão acima
+                </div>
             </div>
         </div>
 
@@ -990,7 +1011,7 @@
         // CONFIGURAÇÃO DO GOOGLE SHEETS
         const SHEET_ID = '1OzrdPS7am7FSHOrVlT3qD5NBGm0TE1NERvRVKnFGb90';
         const GID = '1226817368';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
         let dashboardData = null;
         let fullData = null;
@@ -1011,70 +1032,179 @@
             isViewMode = urlParams.get('view') === '1';
             
             if (isViewMode) {
-                document.getElementById('floatingButtons').classList.add('hidden');
-                // NO MODO VIEW, CARREGAR AUTOMATICAMENTE DO GOOGLE SHEETS
-                loadFromGoogleSheets();
-            } else {
-                // NO MODO NORMAL, ESCONDER BOTÃO DE UPLOAD E CARREGAR DO GOOGLE SHEETS
-                document.getElementById('btnUpload').style.display = 'none';
-                loadFromGoogleSheets();
-                // NO MODO NORMAL, VERIFICAR SE TEM DADOS SALVOS OU PERMITIR UPLOAD
-                const saved = localStorage.getItem('ecoDashboardData');
-                if (saved) {
-                    try {
-                        dashboardData = JSON.parse(saved);
-                        updateDashboard(dashboardData);
-                        document.getElementById('welcomeScreen').style.display = 'none';
-                        document.getElementById('dashboardContent').classList.add('active');
-                    } catch (e) {
-                        console.error('Erro ao carregar:', e);
-                    }
-                }
+                // document.getElementById('floatingButtons').classList.add('hidden'); // REMOVIDO
             }
+            
+            // 🔄 SEMPRE CARREGAR DO GOOGLE SHEETS (tanto em view=1 quanto normal)
+            console.log('🔄 Carregando dados do Google Sheets automaticamente...');
+            loadFromGoogleSheets();
+            
+            // 🔄 ATUALIZAÇÃO AUTOMÁTICA A CADA 5 MINUTOS
+            setInterval(() => {
+                console.log('🔄 Atualização automática: recarregando dados...');
+                loadFromGoogleSheets(true); // true = atualização silenciosa
+            }, 5 * 60 * 1000); // 5 minutos
         });
 
-        // FUNÇÃO PARA CARREGAR DADOS DO GOOGLE SHEETS
+        // FUNÇÃO PARA CARREGAR DADOS DO GOOGLE SHEETS - MULTI-MÉTODO
         async function loadFromGoogleSheets() {
-            try {
-                document.getElementById('loadingOverlay').classList.add('active');
-                
-                const response = await fetch(SHEET_URL);
-                const csvText = await response.text();
-                
-                // Converter CSV para array de objetos
-                const lines = csvText.split('\n');
-                const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-                
-                const data = [];
-                for (let i = 1; i < lines.length; i++) {
-                    if (!lines[i].trim()) continue;
+            document.getElementById('loadingOverlay').classList.add('active');
+            
+            // MÉTODO 1: Tentar /export?format=csv
+            const method1 = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=csv&gid=' + GID;
+            
+            // MÉTODO 2: Tentar /gviz/tq
+            const method2 = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + GID;
+            
+            // MÉTODO 3: Usar proxy CORS
+            const method3 = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(method1);
+            
+            const methods = [
+                { name: 'Método 1 (export/csv)', url: method1 },
+                { name: 'Método 2 (gviz/tq)', url: method2 },
+                { name: 'Método 3 (proxy CORS)', url: method3 }
+            ];
+            
+            // Tentar cada método até funcionar
+            for (let i = 0; i < methods.length; i++) {
+                try {
+                    console.log('🔄 Tentando ' + methods[i].name + '...');
                     
-                    const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
-                    const row = {};
+                    const response = await fetch(methods[i].url);
                     
-                    headers.forEach((header, index) => {
-                        row[header] = values[index];
-                    });
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
                     
-                    data.push(row);
+                    const csvText = await response.text();
+                    
+                    // Verificar se é CSV válido
+                    if (!csvText || csvText.length < 100 || !csvText.includes('REGIONAL')) {
+                        throw new Error('CSV inválido');
+                    }
+                    
+                    console.log('✅ ' + methods[i].name + ' funcionou!');
+                    
+                    // Parser CSV robusto (lida com vírgulas dentro de aspas)
+                    const lines = [];
+                    let currentLine = '';
+                    let insideQuotes = false;
+                    
+                    for (let char of csvText) {
+                        if (char === '"') {
+                            insideQuotes = !insideQuotes;
+                        } else if (char === '\n' && !insideQuotes) {
+                            if (currentLine.trim()) {
+                                lines.push(currentLine);
+                            }
+                            currentLine = '';
+                        } else {
+                            currentLine += char;
+                        }
+                    }
+                    if (currentLine.trim()) lines.push(currentLine);
+                    
+                    // Processar headers
+                    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+                    
+                    // Processar linhas
+                    const data = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = [];
+                        let currentValue = '';
+                        let insideQuotes = false;
+                        
+                        for (let char of lines[i]) {
+                            if (char === '"') {
+                                insideQuotes = !insideQuotes;
+                            } else if (char === ',' && !insideQuotes) {
+                                values.push(currentValue.trim());
+                                currentValue = '';
+                            } else {
+                                currentValue += char;
+                            }
+                        }
+                        values.push(currentValue.trim());
+                        
+                        // Verificar se a linha tem dados válidos
+                        if (values[0] && values[1] && values[2]) {
+                            const row = {};
+                            headers.forEach((header, index) => {
+                                row[header] = values[index] || '';
+                            });
+                            data.push(row);
+                        }
+                    }
+                    
+                    console.log('📊 Total de registros carregados:', data.length);
+                    
+                    // Processar dados
+                    const processedData = analyzeData(data);
+                    dashboardData = processedData;
+                    fullData = data;
+                    
+                    // Atualizar dashboard
+                    updateDashboard(processedData);
+                    
+                    document.getElementById('welcomeScreen').style.display = 'none';
+                    document.getElementById('dashboardContent').classList.add('active');
+                    document.getElementById('loadingOverlay').classList.remove('active');
+                    
+                    return; // Sucesso!
+                    
+                } catch (error) {
+                    console.error('❌ ' + methods[i].name + ' falhou:', error.message);
+                    
+                    // Se for o último método, mostrar erro
+                    if (i === methods.length - 1) {
+                        document.getElementById('loadingOverlay').classList.remove('active');
+                        
+                        // Mostrar mensagem de erro com solução
+                        const welcomeText = document.getElementById('welcomeText');
+                        welcomeText.innerHTML = `
+                            <div style="text-align: center; max-width: 700px; margin: 0 auto; padding: 30px;">
+                                <h2 style="color: #e74c3c; margin-bottom: 25px;">⚠️ Planilha do Google Sheets Bloqueada</h2>
+                                
+                                <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-bottom: 25px; text-align: left;">
+                                    <h3 style="color: #856404; margin-bottom: 15px;">🔒 Problema de Permissão</h3>
+                                    <p style="color: #856404; line-height: 1.6;">A planilha do Google Sheets está <strong>bloqueada</strong> e não pode ser acessada publicamente. Tentamos 3 métodos diferentes, mas todos falharam devido a restrições de acesso.</p>
+                                </div>
+                                
+                                <div style="background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 10px; padding: 20px; margin-bottom: 25px; text-align: left;">
+                                    <h3 style="color: #0c5460; margin-bottom: 15px;">🛠️ Soluções Possíveis:</h3>
+                                    
+                                    <div style="margin-bottom: 20px;">
+                                        <h4 style="color: #0c5460; margin-bottom: 10px;">📝 Opção 1: Publicar a Planilha na Web</h4>
+                                        <ol style="color: #0c5460; line-height: 1.8; padding-left: 20px;">
+                                            <li>Abra a planilha: <a href="https://docs.google.com/spreadsheets/d/1OzrdPS7am7FSHOrVlT3qD5NBGm0TE1NERvRVKnFGb90/edit" target="_blank" style="color: #0c5460; text-decoration: underline;">Clique aqui</a></li>
+                                            <li>Menu: <strong>Arquivo → Compartilhar → Publicar na Web</strong></li>
+                                            <li>Selecione: <strong>Planilha inteira</strong></li>
+                                            <li>Formato: <strong>CSV</strong></li>
+                                            <li>Clique em <strong>"Publicar"</strong></li>
+                                            <li>Copie o link gerado e cole no código (linha 1014)</li>
+                                        </ol>
+                                    </div>
+                                    
+                                    <div style="border-top: 1px solid #17a2b8; padding-top: 20px;">
+                                        <h4 style="color: #0c5460; margin-bottom: 10px;">📥 Opção 2: Baixar e Fazer Upload (TEMPORÁRIO)</h4>
+                                        <ol style="color: #0c5460; line-height: 1.8; padding-left: 20px;">
+                                            <li>Baixe a planilha como Excel (.xlsx)</li>
+                                            <li>Use o botão abaixo para fazer upload</li>
+                                            <li>Dashboard funcionará com os dados carregados</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                
+                                <div style="background: #f8d7da; border: 2px solid #f5c6cb; border-radius: 10px; padding: 15px; margin-bottom: 25px;">
+                                    <p style="color: #721c24; margin: 0; font-weight: 600;">⚠️ <strong>Importante:</strong> Sem publicar na web, o dashboard <strong>NÃO</strong> poderá atualizar automaticamente!</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Mostrar botão de upload temporário
+                        document.getElementById('uploadOption').style.display = 'block';
+                    }
                 }
-                
-                // Processar dados
-                const processedData = analyzeData(data);
-                dashboardData = processedData;
-                fullData = data;
-                
-                // Atualizar dashboard
-                updateDashboard(processedData);
-                
-                document.getElementById('welcomeScreen').style.display = 'none';
-                document.getElementById('dashboardContent').classList.add('active');
-                document.getElementById('loadingOverlay').classList.remove('active');
-                
-            } catch (error) {
-                console.error('Erro ao carregar do Google Sheets:', error);
-                document.getElementById('loadingOverlay').classList.remove('active');
-                alert('Erro ao carregar dados do Google Sheets. Verifique se a planilha está compartilhada publicamente.');
             }
         }
 
@@ -1115,14 +1245,29 @@
 
         function parseExcelDate(excelDate) {
             if (!excelDate) return null;
+            
+            // Se já é Date
             if (excelDate instanceof Date) return excelDate;
+            
+            // Se é string no formato DD/MM/YYYY (comum no Google Sheets)
             if (typeof excelDate === 'string') {
+                // Tentar formato brasileiro: DD/MM/YYYY
+                const brMatch = excelDate.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                if (brMatch) {
+                    const [, dia, mes, ano] = brMatch;
+                    return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+                }
+                
+                // Tentar formato ISO ou padrão
                 const date = new Date(excelDate);
                 if (!isNaN(date)) return date;
             }
+            
+            // Se é número (serial do Excel)
             if (typeof excelDate === 'number') {
                 return new Date((excelDate - 25569) * 86400 * 1000);
             }
+            
             return null;
         }
 
@@ -1153,83 +1298,137 @@
         function analyzeData(data) {
             const now = new Date();
             const day = now.getDate();
-            const month = now.getMonth() + 1;
+            const month = now.getMonth();
             const year = now.getFullYear();
-            const lastDay = new Date(year, month, 0).getDate();
+            
+            // 📅 QUINZENA CORRETA: Detectar último dia do mês (28, 30 ou 31)
+            const lastDay = new Date(year, month + 1, 0).getDate();
             
             let quinzena, periodo, dataInicio, dataFim;
             
             if (day <= 15) {
+                // 1ª QUINZENA: 01 a 15
                 quinzena = 1;
-                dataInicio = new Date(year, month - 1, 1);
-                dataFim = new Date(year, month - 1, 15, 23, 59, 59);
-                periodo = `01/${month.toString().padStart(2, '0')} - 15/${month.toString().padStart(2, '0')}/${year}`;
+                dataInicio = new Date(year, month, 1, 0, 0, 0);
+                dataFim = new Date(year, month, 15, 23, 59, 59);
+                periodo = `01/${(month + 1).toString().padStart(2, '0')} - 15/${(month + 1).toString().padStart(2, '0')}/${year}`;
             } else {
+                // 2ª QUINZENA: 16 até último dia (28, 30 ou 31)
                 quinzena = 2;
-                dataInicio = new Date(year, month - 1, 16);
-                dataFim = new Date(year, month - 1, lastDay, 23, 59, 59);
-                periodo = `16/${month.toString().padStart(2, '0')} - ${lastDay}/${month.toString().padStart(2, '0')}/${year}`;
+                dataInicio = new Date(year, month, 16, 0, 0, 0);
+                dataFim = new Date(year, month, lastDay, 23, 59, 59);
+                periodo = `16/${(month + 1).toString().padStart(2, '0')} - ${lastDay}/${(month + 1).toString().padStart(2, '0')}/${year}`;
             }
 
-            const dataQuinzena = data.filter(row => {
-                const realizado = parseExcelDate(row.REALIZADO);
-                return realizado && realizado >= dataInicio && realizado <= dataFim;
-            });
+            console.log('📅 Período da quinzena:', periodo);
+            console.log('📅 Data de início:', dataInicio.toLocaleDateString('pt-BR'));
+            console.log('📅 Data de fim:', dataFim.toLocaleDateString('pt-BR'));
+            console.log('📅 Hoje:', now.toLocaleDateString('pt-BR'));
+            
+            // 🔍 DEBUG: Mostrar primeiras 3 datas REALIZADO
+            console.log('\n🔍 DEBUG - Primeiras 3 datas REALIZADO:');
+            for (let i = 0; i < Math.min(3, data.length); i++) {
+                const row = data[i];
+                const realizadoRaw = row.REALIZADO;
+                const realizadoParsed = parseExcelDate(realizadoRaw);
+                console.log(`  ${i+1}. Placa: ${row.Placa}`);
+                console.log(`     REALIZADO (raw): ${realizadoRaw}`);
+                console.log(`     REALIZADO (parsed): ${realizadoParsed ? realizadoParsed.toLocaleDateString('pt-BR') : 'null'}`);
+                console.log(`     Dentro da quinzena? ${realizadoParsed && realizadoParsed >= dataInicio && realizadoParsed <= dataFim ? 'SIM \u2705' : 'N\u00c3O \u274c'}`);
+            }
 
             const agrupado = {};
+            
+            // 📋 PROCESSAR TODOS OS DADOS (incluindo NÃO CONSTA)
             data.forEach(row => {
                 const regional = row.REGIONAL || 'NÃO INFORMADO';
-                const svc = row.SVC;
+                const svc = row.SVC || 'SEM SVC';
+                const placa = row.Placa || 'SEM PLACA';
+                const consta = (row['CONSTA NA VEC'] || '').toString().toUpperCase();
                 const key = `${regional}|${svc}`;
+                
+                // Verificar se é "NÃO CONSTA"
+                const isNaoConsta = consta.includes('NO CONSTA') || 
+                                    consta.includes('NÃO CONSTA') || 
+                                    consta.includes('NAO CONSTA') ||
+                                    consta === 'NO CONSTA';
+                
+                // Verificar se foi realizado NA QUINZENA
+                const realizado = parseExcelDate(row.REALIZADO);
+                const isRealizado = realizado && realizado >= dataInicio && realizado <= dataFim;
                 
                 if (!agrupado[key]) {
                     agrupado[key] = {
-                        regional, svc, total: 0, nao_consta: 0, realizados: 0,
-                        placas_todas: [], placas_pendentes: []
+                        regional,
+                        svc,
+                        total: 0,               // Total GERAL (com NÃO CONSTA)
+                        nao_consta: 0,          // Quantidade de NÃO CONSTA
+                        total_validos: 0,       // Total sem NÃO CONSTA (para cálculo)
+                        realizados: 0,          // Realizados na quinzena
+                        placas_todas: [],       // Todas as placas
+                        placas_nao_consta: [],  // Placas NÃO CONSTA
+                        placas_validas: [],     // Placas válidas (sem NÃO CONSTA)
+                        placas_pendentes: []    // Pendentes (válidas que não foram realizadas)
                     };
                 }
                 
+                // Contar TUDO
                 agrupado[key].total++;
-                agrupado[key].placas_todas.push(row.Placa);
+                agrupado[key].placas_todas.push(placa);
                 
-                if (row['CONSTA NA VEC'] !== 'OK') {
+                if (isNaoConsta) {
+                    // 🚫 PLACA NÃO CONSTA
                     agrupado[key].nao_consta++;
+                    agrupado[key].placas_nao_consta.push(placa);
+                } else {
+                    // ✅ PLACA VÁLIDA (entra nos cálculos)
+                    agrupado[key].total_validos++;
+                    agrupado[key].placas_validas.push(placa);
+                    
+                    if (isRealizado) {
+                        agrupado[key].realizados++;
+                    } else {
+                        agrupado[key].placas_pendentes.push(placa);
+                    }
                 }
             });
 
-            dataQuinzena.forEach(row => {
-                const regional = row.REGIONAL || 'NÃO INFORMADO';
-                const svc = row.SVC;
-                const key = `${regional}|${svc}`;
-                
-                if (agrupado[key]) {
-                    agrupado[key].realizados++;
-                }
-            });
-
+            // 📋 CRIAR DETALHAMENTO
             const detalhamento = Object.values(agrupado).map(item => {
-                const faltando = item.total - item.realizados;
-                const perc = (item.realizados / item.total * 100).toFixed(2);
+                const faltando = item.total_validos - item.realizados;
+                const perc = item.total_validos > 0 
+                    ? (item.realizados / item.total_validos * 100).toFixed(2)
+                    : 0;
                 
                 let cor = 'vermelho';
                 if (perc >= 80) cor = 'verde';
                 else if (perc >= 50) cor = 'amarelo';
 
-                const realizadas = new Set();
-                dataQuinzena.forEach(row => {
-                    if (row.REGIONAL === item.regional && row.SVC === item.svc) {
-                        realizadas.add(row.Placa);
-                    }
-                });
-
-                const placasPendentes = item.placas_todas.filter(p => !realizadas.has(p));
+                // 🔍 DEBUG para SDF1
+                if (item.svc === 'SDF1') {
+                    console.log('\n🔍 DEBUG SDF1:');
+                    console.log('Total geral:', item.total);
+                    console.log('Não consta:', item.nao_consta);
+                    console.log('Total válidos:', item.total_validos);
+                    console.log('Realizados:', item.realizados);
+                    console.log('Faltando:', faltando);
+                    console.log('Percentual:', perc + '%');
+                    console.log('Placas não consta:', item.placas_nao_consta);
+                    console.log('Placas pendentes:', item.placas_pendentes);
+                }
 
                 return {
-                    regional: item.regional, svc: item.svc,
-                    total_carros: item.total, quant_nao_consta: item.nao_consta,
-                    realizados: item.realizados, faltando,
-                    perc_realizado: parseFloat(perc), cor,
-                    placas_pendentes: placasPendentes
+                    regional: item.regional,
+                    svc: item.svc,
+                    total_carros: item.total,                    // Total GERAL (com NÃO CONSTA)
+                    quant_nao_consta: item.nao_consta,           // Quantidade NÃO CONSTA
+                    total_validos: item.total_validos,           // Total VÁLIDO (sem NÃO CONSTA)
+                    realizados: item.realizados,                 // Realizados na quinzena
+                    faltando: faltando,                          // Faltando (só válidos)
+                    perc_realizado: parseFloat(perc),            // % (só válidos)
+                    cor: cor,
+                    placas_pendentes: item.placas_pendentes,     // Pendentes (só válidas)
+                    placas_nao_consta: item.placas_nao_consta    // Lista de NÃO CONSTA
                 };
             });
 
@@ -1239,16 +1438,40 @@
                 return b.perc_realizado - a.perc_realizado;
             });
 
+            // 📋 KPIs GLOBAIS (usando apenas VÁLIDOS, sem NÃO CONSTA)
+            const total_geral = data.length;
+            const total_nao_consta = detalhamento.reduce((sum, item) => sum + item.quant_nao_consta, 0);
+            const total_validos = detalhamento.reduce((sum, item) => sum + item.total_validos, 0);
+            const total_realizados = detalhamento.reduce((sum, item) => sum + item.realizados, 0);
+            const total_faltando = total_validos - total_realizados;
+            const taxa_geral = total_validos > 0 
+                ? (total_realizados / total_validos * 100).toFixed(2)
+                : 0;
+
+            console.log('📋 Total GERAL:', total_geral);
+            console.log('🚫 NÃO CONSTA:', total_nao_consta);
+            console.log('✅ VÁLIDOS:', total_validos);
+            console.log('✅ Realizados:', total_realizados);
+            console.log('⏳ Faltando:', total_faltando);
+            console.log('📈 Taxa:', taxa_geral + '%');
+
             const kpis = {
-                total_veiculos: data.length,
-                total_realizados: dataQuinzena.length,
-                total_faltando: data.length - dataQuinzena.length,
-                taxa_geral: ((dataQuinzena.length / data.length * 100).toFixed(2))
+                total_veiculos: total_validos,      // Mostrar apenas VÁLIDOS
+                total_realizados: total_realizados,
+                total_faltando: total_faltando,
+                taxa_geral: taxa_geral,
+                total_nao_consta: total_nao_consta  // Adicionar para referência
             };
 
             return {
-                metadata: { periodo, quinzena, ultima_atualizacao: now.toLocaleString('pt-BR') },
-                kpis, detalhamento
+                metadata: { 
+                    periodo, 
+                    quinzena, 
+                    ultima_atualizacao: now.toLocaleString('pt-BR'),
+                    lastDay: lastDay  // Último dia do mês
+                },
+                kpis,
+                detalhamento
             };
         }
 
@@ -1670,10 +1893,14 @@
         }
 
         function updatePlacasPendentes(data) {
-            const pendentes = data.filter(d => d.placas_pendentes.length > 0);
-            const totalPlacas = pendentes.reduce((sum, d) => sum + d.placas_pendentes.length, 0);
+            // Filtrar itens que têm placas pendentes OU placas não consta
+            const pendentes = data.filter(d => d.placas_pendentes.length > 0 || d.placas_nao_consta.length > 0);
+            
+            // Contar apenas placas VÁLIDAS pendentes (sem NÃO CONSTA)
+            const totalPlacasValidas = pendentes.reduce((sum, d) => sum + d.placas_pendentes.length, 0);
+            const totalNaoConsta = pendentes.reduce((sum, d) => sum + (d.placas_nao_consta ? d.placas_nao_consta.length : 0), 0);
 
-            document.getElementById('pendentesCount').textContent = `${totalPlacas} placas`;
+            document.getElementById('pendentesCount').textContent = `${totalPlacasValidas} placas pendentes ${totalNaoConsta > 0 ? '+ ' + totalNaoConsta + ' não consta' : ''}`;
 
             const grid = document.getElementById('pendentesGrid');
             grid.innerHTML = '';
@@ -1683,11 +1910,29 @@
             pendentes.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'pendente-card';
+                
+                // HTML com placas PENDENTES (válidas) e NÃO CONSTA (cinza)
+                let placasHTML = '';
+                
+                // Placas PENDENTES (vermelhas)
+                if (item.placas_pendentes && item.placas_pendentes.length > 0) {
+                    placasHTML += item.placas_pendentes.map(p => 
+                        `<span class="placa-badge placa-pendente">${p}</span>`
+                    ).join('');
+                }
+                
+                // Placas NÃO CONSTA (cinza/azul)
+                if (item.placas_nao_consta && item.placas_nao_consta.length > 0) {
+                    placasHTML += item.placas_nao_consta.map(p => 
+                        `<span class="placa-badge placa-nao-consta" title="NÃO CONSTA - não precisa fazer">🚫 ${p}</span>`
+                    ).join('');
+                }
+                
                 card.innerHTML = `
                     <div class="pendente-regional">${item.regional}</div>
                     <div class="pendente-svc">${item.svc}</div>
                     <div class="pendente-placas">
-                        ${item.placas_pendentes.map(p => `<span class="placa-badge">${p}</span>`).join('')}
+                        ${placasHTML}
                     </div>
                 `;
                 grid.appendChild(card);
@@ -1730,6 +1975,102 @@
             XLSX.utils.book_append_sheet(wb, ws, 'Análise');
             XLSX.writeFile(wb, `EcoExpress_Checklist_${dashboardData.metadata.periodo.replace(/\//g, '-')}.xlsx`);
         }
+        // 🔄 SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA
+        let autoRefreshInterval = null;
+        
+        // SUBSTITUIR O EVENTO DE LOAD EXISTENTE PARA INCLUIR AUTO-REFRESH
+        const originalLoad = window.onload;
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            isViewMode = urlParams.get('view') === '1';
+            
+            if (isViewMode) {
+                // document.getElementById('floatingButtons').classList.add('hidden'); // REMOVIDO
+            }
+            
+            // 🔄 SEMPRE CARREGAR DO GOOGLE SHEETS AUTOMATICAMENTE
+            console.log('🔄 Iniciando carregamento automático dos dados...');
+            loadFromGoogleSheets();
+            
+            // 🔄 ATUALIZAÇÃO AUTOMÁTICA A CADA 5 MINUTOS
+            autoRefreshInterval = setInterval(() => {
+                console.log('🔄 Atualização automática: recarregando dados do Google Sheets...');
+                loadFromGoogleSheetsQuiet();
+            }, 5 * 60 * 1000); // 5 minutos
+            
+            console.log('✅ Sistema de atualização automática ativado (a cada 5 minutos)');
+        }, {once: false}); // Permite múltiplos listeners
+        
+        // FUNÇÃO PARA ATUALIZAÇÃO SILENCIOSA (sem mostrar loading)
+        async function loadFromGoogleSheetsQuiet() {
+            try {
+                const method1 = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=csv&gid=' + GID;
+                const response = await fetch(method1 + '&t=' + Date.now()); // Evita cache
+                
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                
+                const csvText = await response.text();
+                if (!csvText || !csvText.includes('REGIONAL')) throw new Error('CSV inválido');
+                
+                // Parser CSV robusto
+                const lines = [];
+                let currentLine = '';
+                let insideQuotes = false;
+                
+                for (let char of csvText) {
+                    if (char === '"') {
+                        insideQuotes = !insideQuotes;
+                    } else if (char === '\n' && !insideQuotes) {
+                        if (currentLine.trim()) lines.push(currentLine);
+                        currentLine = '';
+                    } else {
+                        currentLine += char;
+                    }
+                }
+                if (currentLine.trim()) lines.push(currentLine);
+                
+                const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+                const data = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = [];
+                    let currentValue = '';
+                    let insideQuotes = false;
+                    
+                    for (let char of lines[i]) {
+                        if (char === '"') {
+                            insideQuotes = !insideQuotes;
+                        } else if (char === ',' && !insideQuotes) {
+                            values.push(currentValue.trim());
+                            currentValue = '';
+                        } else {
+                            currentValue += char;
+                        }
+                    }
+                    values.push(currentValue.trim());
+                    
+                    if (values[0] && values[1] && values[2]) {
+                        const row = {};
+                        headers.forEach((header, index) => {
+                            row[header] = values[index] || '';
+                        });
+                        data.push(row);
+                    }
+                }
+                
+                console.log('✅ Atualização automática concluída:', data.length, 'registros');
+                
+                const processedData = analyzeData(data);
+                dashboardData = processedData;
+                fullData = data;
+                updateDashboard(processedData);
+                
+            } catch (error) {
+                console.error('❌ Erro na atualização automática:', error.message);
+            }
+        }
+
     </script>
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
