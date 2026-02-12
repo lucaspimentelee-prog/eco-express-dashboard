@@ -1,1028 +1,1381 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>ECO EXPRESS - SISTEMA INTEGRADO DE GESTÃO DE RISCO</title>
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>ECO EXPRESS - SISTEMA INTEGRADO DE GESTÃO DE RISCO</title>
 
-    <style>
-        /* ================= ESTILOS GERAIS ================= */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); min-height: 100vh; }
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-        /* Header */
-        .header { background: linear-gradient(135deg, #7CB342 0%, #558B2F 100%); color: white; padding: 15px 30px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
-        .header-title { font-size: 24px; font-weight: bold; }
-        .logo { width: 120px; transition: 0.3s; } .logo:hover { transform: scale(1.05); }
+<style>
+/* ================= ESTILOS GERAIS ================= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); min-height: 100vh; }
 
-        /* Navegação */
-        .nav-tabs { display: flex; justify-content: center; gap: 20px; padding: 20px; background: linear-gradient(135deg, #7CB342 0%, #558B2F 100%); }
-        .nav-tab { padding: 15px 40px; font-size: 16px; font-weight: 700; border: 2px solid white; border-radius: 30px; cursor: pointer; background: rgba(255,255,255,0.2); color: white; transition: all 0.3s; }
-        .nav-tab.active { background: white; color: #558B2F; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(-3px); }
-        
-        .container { max-width: 1800px; margin: 20px auto; padding: 0 20px; }
-        .tab-pane { display: none; padding-bottom: 50px; }
-        .tab-pane.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* Header */
+.header { background: linear-gradient(135deg, #7CB342 0%, #558B2F 100%); color: white; padding: 15px 30px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
+.header-title { font-size: 24px; font-weight: bold; }
+.logo { width: 120px; transition: 0.3s; } .logo:hover { transform: scale(1.05); }
 
-        /* Loading */
-        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; color: white; }
-        .loading-overlay.active { display: flex; }
-        .spinner { border: 6px solid #f3f3f3; border-top: 6px solid #7CB342; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+/* Navegação */
+.nav-tabs { display: flex; justify-content: center; gap: 20px; padding: 20px; background: linear-gradient(135deg, #7CB342 0%, #558B2F 100%); }
+.nav-tab { padding: 15px 40px; font-size: 16px; font-weight: 700; border: 2px solid white; border-radius: 30px; cursor: pointer; background: rgba(255,255,255,0.2); color: white; transition: all 0.3s; }
+.nav-tab.active { background: white; color: #558B2F; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(-3px); }
 
-        /* ================= ESTILOS CHECKLIST ================= */
-        .kpis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .kpi-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 5px solid #7CB342; }
-        .kpi-value { font-size: 32px; font-weight: bold; color: #333; }
-        .kpi-label { font-size: 14px; color: #666; }
-        
-        .filters-section { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .filter-select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 100%; cursor: pointer; }
-        
-        .charts-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .chart-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .chart-canvas { position: relative; height: 350px; }
-        
-        .table-section { background: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #424242; color: white; padding: 12px; text-align: left; cursor: pointer; }
-        td { padding: 12px; border-bottom: 1px solid #ddd; }
-        .status-verde { background: #c8e6c9; color: #2e7d32; } .status-amarelo { background: #fff9c4; color: #f57f17; } .status-vermelho { background: #ffcdd2; color: #c62828; }
+.container { max-width: 1800px; margin: 20px auto; padding: 0 20px; }
+.tab-pane { display: none; padding-bottom: 50px; }
+.tab-pane.active { display: block; animation: fadeIn 0.5s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .pendentes-section { background: white; padding: 20px; border-radius: 12px; margin-top: 20px; }
-        .pendentes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
-        .pendente-card { background: #fff3f3; border-left: 4px solid #f44336; padding: 15px; border-radius: 8px; }
-        .placa-badge { display: inline-block; background: white; border: 1px solid #f44336; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #c62828; margin: 2px; }
-        .placa-nao-consta { background: #e3f2fd; border-color: #2196f3; color: #1565c0; opacity: 0.8; }
+/* Loading */
+.loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; color: white; }
+.loading-overlay.active { display: flex; }
+.spinner { border: 6px solid #f3f3f3; border-top: 6px solid #7CB342; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* ================= ESTILOS TREINAMENTOS E OFENSORES ================= */
-        .treino-controls, .controls-ofensores { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-start; }
-        .controls-ofensores { border-left: 5px solid #c62828; align-items: flex-end; }
-        
-        /* HEADER EXECUTIVO DE TREINAMENTO */
-        .treino-executive-header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 12px 12px 0 0;
-            margin-bottom: 0;
-            text-align: center;
-            border-bottom: 4px solid #c0392b;
-        }
-        .treino-executive-header h2 {
-            font-size: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 800;
-            margin: 0;
-        }
-        .treino-controls-box {
-            background: white;
-            padding: 20px;
-            border-radius: 0 0 12px 12px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
+/* ================= ESTILOS CHECKLIST ================= */
+.kpis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.kpi-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 5px solid #7CB342; }
+.kpi-value { font-size: 32px; font-weight: bold; color: #333; }
+.kpi-label { font-size: 14px; color: #666; }
 
-        .multi-select-container { position: relative; min-width: 250px; }
-        .multi-select-btn { width: 100%; padding: 12px; background: white; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: #444; }
-        .multi-select-dropdown { display: none; position: absolute; top: 105%; left: 0; width: 100%; max-height: 300px; overflow-y: auto; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 100; padding: 10px; }
-        .multi-select-dropdown.show { display: block; }
-        .checkbox-item { display: block; padding: 8px; cursor: pointer; border-bottom: 1px solid #eee; } .checkbox-item:hover { background: #f5f5f5; } .checkbox-item input { margin-right: 10px; transform: scale(1.2); }
-        .btn-action { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; display: flex; align-items: center; gap: 8px; height: 45px; }
-        .btn-excel { background: #27ae60; } .btn-update { background: #667eea; }
-        .treino-kpis { display: flex; gap: 20px; margin-bottom: 30px; }
-        .kpi-box-t { flex: 1; padding: 20px; border-radius: 12px; text-align: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .kpi-val { font-size: 36px; font-weight: bold; }
+.filters-section { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+.filter-select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 100%; cursor: pointer; }
 
-        /* OFENSORES NOVOS ESTILOS */
-        .filter-input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; width: 100%; }
+.charts-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.chart-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.chart-canvas { position: relative; height: 350px; }
 
-        /* RISCO DE VIDA (Velocidade) */
-        .risk-critical { background-color: #ffebee !important; color: #b71c1c !important; font-weight: 900 !important; border: 2px solid #ef5350; position: relative; }
-        .recency-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; margin-left: 5px; }
-        .recency-urgent { background-color: #d32f2f; box-shadow: 0 0 5px rgba(211, 47, 47, 0.5); }
-        .recency-warning { background-color: #f57c00; }
-        .recency-history { background-color: #78909c; }
-        .driver-link { color: #1565c0; text-decoration: none; font-weight: bold; cursor: pointer; border-bottom: 1px dotted #1565c0; }
-        .driver-link:hover { color: #0d47a1; border-bottom: 1px solid #0d47a1; }
+.table-section { background: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #424242; color: white; padding: 12px; text-align: left; cursor: pointer; white-space: nowrap; }
+td { padding: 12px; border-bottom: 1px solid #ddd; white-space: nowrap; }
+.status-verde { background: #c8e6c9; color: #2e7d32; } .status-amarelo { background: #fff9c4; color: #f57f17; } .status-vermelho { background: #ffcdd2; color: #c62828; }
 
-        /* ================= LISTA OPERACIONAL (WORK QUEUE) - APENAS ESTILOS, REMOVIDO DO HTML ================= */
-        .ops-card { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 8px; transition: 0.2s; cursor: pointer; background: white; }
-        .ops-card:hover { transform: translateX(5px); border-color: #1565c0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .ops-card.status-expired { border-left: 4px solid #c62828; background: #fff8f8; }
-        .ops-card.status-critical { border-left: 4px solid #f57c00; }
-        .ops-card.status-normal { border-left: 4px solid #2e7d32; }
-        .ops-info-main { display: flex; flex-direction: column; }
-        .ops-name { font-weight: bold; color: #333; font-size: 14px; }
-        .ops-meta { font-size: 11px; color: #666; }
-        .ops-badge { font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 12px; text-align: center; width: fit-content; }
-        .badge-proto { background: #eceff1; color: #455a64; border: 1px solid #cfd8dc; }
-        
-        .sla-timer { font-family: monospace; font-weight: bold; font-size: 13px; }
-        .sla-timer.expired { color: #c62828; }
-        .sla-timer.critical { color: #e65100; }
-        .sla-timer.normal { color: #2e7d32; }
+.pendentes-section { background: white; padding: 20px; border-radius: 12px; margin-top: 20px; }
+.pendentes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
+.pendente-card { background: #fff3f3; border-left: 4px solid #f44336; padding: 15px; border-radius: 8px; }
+.placa-badge { display: inline-block; background: white; border: 1px solid #f44336; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #c62828; margin: 2px; }
+.placa-nao-consta { background: #e3f2fd; border-color: #2196f3; color: #1565c0; opacity: 0.8; }
 
-        /* ================= MODAL PRESCRITIVO ================= */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; width: 95%; max-width: 900px; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: slideDown 0.3s ease-out; display: flex; flex-direction: column; max-height: 90vh; }
-        @keyframes slideDown { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+/* ================= ESTILOS TREINAMENTOS E OFENSORES ================= */
+.treino-controls, .controls-ofensores { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-start; }
+.controls-ofensores { border-left: 5px solid #c62828; align-items: flex-end; }
 
-        .prescriptive-header { background: #424242; color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
-        .prescriptive-header.critical { background: #c62828; }
-        .driver-info h2 { font-size: 22px; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .driver-info span { font-size: 13px; opacity: 0.9; font-family: monospace; }
-        .status-badge { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.4); font-size: 12px; font-weight: bold; letter-spacing: 1px; }
-        .close-modal-btn { background: none; border: none; font-size: 28px; color: white; cursor: pointer; opacity: 0.7; }
-        .close-modal-btn:hover { opacity: 1; }
+/* HEADER EXECUTIVO DE TREINAMENTO */
+.treino-executive-header {
+background-color: #2c3e50;
+color: white;
+padding: 15px 20px;
+border-radius: 12px 12px 0 0;
+margin-bottom: 0;
+text-align: center;
+border-bottom: 4px solid #c0392b;
+}
+.treino-executive-header h2 {
+font-size: 20px;
+text-transform: uppercase;
+letter-spacing: 1px;
+font-weight: 800;
+margin: 0;
+}
+.treino-controls-box {
+background: white;
+padding: 20px;
+border-radius: 0 0 12px 12px;
+margin-bottom: 20px;
+display: flex;
+gap: 15px;
+flex-wrap: wrap;
+box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
 
-        .prescriptive-body { display: grid; grid-template-columns: 35% 65%; overflow-y: auto; flex: 1; }
-        .facts-column { background: #f5f5f5; padding: 25px; border-right: 1px solid #ddd; }
-        .section-title { font-size: 11px; font-weight: 800; color: #666; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
-        .fact-list { list-style: none; }
-        .fact-list li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e0e0e0; font-size: 14px; }
-        .fact-list li strong { font-weight: 700; color: #333; }
-        .fact-footer { margin-top: 20px; font-size: 11px; color: #888; text-align: center; }
+.multi-select-container { position: relative; min-width: 250px; }
+.multi-select-btn { width: 100%; padding: 12px; background: white; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: #444; }
+.multi-select-dropdown { display: none; position: absolute; top: 105%; left: 0; width: 100%; max-height: 300px; overflow-y: auto; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 100; padding: 10px; }
+.multi-select-dropdown.show { display: block; }
+.checkbox-item { display: block; padding: 8px; cursor: pointer; border-bottom: 1px solid #eee; } .checkbox-item:hover { background: #f5f5f5; } .checkbox-item input { margin-right: 10px; transform: scale(1.2); }
+.btn-action { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; display: flex; align-items: center; gap: 8px; height: 45px; }
+.btn-excel { background: #27ae60; } .btn-update { background: #667eea; }
+.treino-kpis { display: flex; gap: 20px; margin-bottom: 30px; }
+.kpi-box-t { flex: 1; padding: 20px; border-radius: 12px; text-align: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.kpi-val { font-size: 36px; font-weight: bold; }
 
-        .protocol-column { padding: 25px; display: flex; flex-direction: column; gap: 20px; }
-        .protocol-card { border: 1px solid #ddd; border-left: 6px solid #444; border-radius: 4px; padding: 20px; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .protocol-card.p-critical { border-left-color: #c62828; background: #fffbfb; }
-        .protocol-header { font-size: 12px; font-weight: 900; color: #444; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .mandatory-action { font-size: 20px; font-weight: 800; color: #222; margin-bottom: 15px; line-height: 1.3; }
-        .technical-reason { font-size: 13px; color: #555; background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 10px; border-left: 3px solid #bbb; }
-        .ops-rule { font-size: 11px; color: #888; font-style: italic; }
+/* OFENSORES NOVOS ESTILOS */
+.filter-input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; width: 100%; }
 
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .metric-box { border: 1px solid #eee; padding: 10px; border-radius: 4px; }
-        .metric-label { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .metric-value { font-size: 14px; font-weight: 700; color: #333; }
-        .metric-value.urgent { color: #d32f2f; }
+/* View Mode Controls */
+.view-mode-container { display: flex; gap: 10px; margin-bottom: 15px; background: #f1f1f1; padding: 10px; border-radius: 8px; width: fit-content; }
+.view-mode-btn { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #555; background: #e0e0e0; transition: 0.2s; }
+.view-mode-btn.active { background: #c62828; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+.view-mode-btn:hover:not(.active) { background: #d6d6d6; }
 
-        /* Rodapé Auditável */
-        .prescriptive-footer { background: #fff; padding: 15px 25px; border-top: 1px solid #ddd; font-size: 11px; color: #999; text-align: right; display: flex; justify-content: space-between; align-items: center; }
-        
-        @media (max-width: 768px) {
-            .prescriptive-body { grid-template-columns: 1fr; }
-            .facts-column { border-right: none; border-bottom: 1px solid #ddd; }
-            .ops-card { grid-template-columns: 1fr; gap: 5px; }
-        }
+.header-periodo { background-color: #f57c00 !important; color: white; }
+.header-3m { background-color: #424242 !important; color: white; }
+.separator-border { border-right: 3px solid #ccc; }
 
-        .kpi-help { font-size: 10px; color: #666; display: block; margin-top: 5px; font-weight: normal; font-style: italic; }
-    </style>
+/* RISCO DE VIDA (Velocidade) */
+.risk-critical { background-color: #ffebee !important; color: #b71c1c !important; font-weight: 900 !important; border: 2px solid #ef5350; position: relative; }
+.recency-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; margin-left: 5px; }
+.recency-urgent { background-color: #d32f2f; box-shadow: 0 0 5px rgba(211, 47, 47, 0.5); }
+.recency-warning { background-color: #f57c00; }
+.recency-history { background-color: #78909c; }
+.driver-link { color: #1565c0; text-decoration: none; font-weight: bold; cursor: pointer; border-bottom: 1px dotted #1565c0; }
+.driver-link:hover { color: #0d47a1; border-bottom: 1px solid #0d47a1; }
+
+/* ================= MODAL PRESCRITIVO ================= */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; }
+.modal-overlay.active { display: flex; }
+.modal-content { background: white; width: 95%; max-width: 900px; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: slideDown 0.3s ease-out; display: flex; flex-direction: column; max-height: 90vh; }
+@keyframes slideDown { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+
+.prescriptive-header { background: #424242; color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
+.prescriptive-header.critical { background: #c62828; }
+.driver-info h2 { font-size: 22px; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.driver-info span { font-size: 13px; opacity: 0.9; font-family: monospace; }
+.status-badge { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.4); font-size: 12px; font-weight: bold; letter-spacing: 1px; }
+.close-modal-btn { background: none; border: none; font-size: 28px; color: white; cursor: pointer; opacity: 0.7; }
+.close-modal-btn:hover { opacity: 1; }
+
+.prescriptive-body { display: grid; grid-template-columns: 35% 65%; overflow-y: auto; flex: 1; }
+.facts-column { background: #f5f5f5; padding: 25px; border-right: 1px solid #ddd; }
+.section-title { font-size: 11px; font-weight: 800; color: #666; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+.fact-list { list-style: none; }
+.fact-list li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e0e0e0; font-size: 14px; }
+.fact-list li strong { font-weight: 700; color: #333; }
+.fact-footer { margin-top: 20px; font-size: 11px; color: #888; text-align: center; }
+
+.protocol-column { padding: 25px; display: flex; flex-direction: column; gap: 20px; }
+.protocol-card { border: 1px solid #ddd; border-left: 6px solid #444; border-radius: 4px; padding: 20px; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.protocol-card.p-critical { border-left-color: #c62828; background: #fffbfb; }
+.protocol-header { font-size: 12px; font-weight: 900; color: #444; margin-bottom: 10px; display: flex; justify-content: space-between; }
+.mandatory-action { font-size: 20px; font-weight: 800; color: #222; margin-bottom: 15px; line-height: 1.3; }
+.technical-reason { font-size: 13px; color: #555; background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 10px; border-left: 3px solid #bbb; }
+.ops-rule { font-size: 11px; color: #888; font-style: italic; }
+
+.metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+.metric-box { border: 1px solid #eee; padding: 10px; border-radius: 4px; }
+.metric-label { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; display: block; margin-bottom: 5px; }
+.metric-value { font-size: 14px; font-weight: 700; color: #333; }
+.metric-value.urgent { color: #d32f2f; }
+
+.prescriptive-footer { background: #fff; padding: 15px 25px; border-top: 1px solid #ddd; font-size: 11px; color: #999; text-align: right; display: flex; justify-content: space-between; align-items: center; }
+
+@media (max-width: 768px) {
+.prescriptive-body { grid-template-columns: 1fr; }
+.facts-column { border-right: none; border-bottom: 1px solid #ddd; }
+}
+
+.kpi-help { font-size: 10px; color: #666; display: block; margin-top: 5px; font-weight: normal; font-style: italic; }
+
+/* Debug Area - Sutil */
+#ofensores-debug-info { margin-top: 10px; padding: 8px; background: #fafafa; border: 1px dashed #ccc; font-family: monospace; font-size: 10px; color: #888; display: block; width: 100%; text-align: left; }
+</style>
 </head>
 <body>
 
-    <div id="driverModal" class="modal-overlay">
-        <div id="prescriptiveContent" class="modal-content"></div>
-    </div>
+<div id="driverModal" class="modal-overlay">
+<div id="prescriptiveContent" class="modal-content"></div>
+</div>
 
-    <div class="header">
-        <div style="display:flex; align-items:center; gap:20px;">
-            <img src="https://drive.google.com/thumbnail?id=1XLW90ZJH4VRX25n1_vpj5Ls5BwEavRvY&sz=w400" alt="Eco Express" class="logo" onerror="this.style.display='none'">
-            <div>
-                <div class="header-title">ECO EXPRESS</div>
-                <div style="font-size:12px; opacity:0.9;">Sistema Integrado de Gestão de Risco</div>
-            </div>
-        </div>
-        <img src="https://drive.google.com/thumbnail?id=1It3AAE7Ybl-K3PYmsalCWG02p9KW4_FI&sz=w400" alt="Mascote" style="width:80px;" onerror="this.style.display='none'">
-    </div>
+<div class="header">
+<div style="display:flex; align-items:center; gap:20px;">
+<img src="https://drive.google.com/thumbnail?id=1XLW90ZJH4VRX25n1_vpj5Ls5BwEavRvY&sz=w400" alt="Eco Express" class="logo" onerror="this.style.display='none'">
+<div>
+<div class="header-title">ECO EXPRESS</div>
+<div style="font-size:12px; opacity:0.9;">Sistema Integrado de Gestão de Risco</div>
+</div>
+</div>
+<img src="https://drive.google.com/thumbnail?id=1It3AAE7Ybl-K3PYmsalCWG02p9KW4_FI&sz=w400" alt="Mascote" style="width:80px;" onerror="this.style.display='none'">
+</div>
 
-    <div class="nav-tabs">
-        <button class="nav-tab active" onclick="mudarAba('checklist')">📋 CHECKLIST</button>
-        <button class="nav-tab" onclick="mudarAba('ofensores')">🚨 OFENSORES</button>
-        <button class="nav-tab" onclick="mudarAba('treinamentos')">🎓 TREINAMENTOS</button>
-    </div>
+<div class="nav-tabs">
+<button class="nav-tab active" onclick="mudarAba('checklist')">📋 CHECKLIST</button>
+<button class="nav-tab" onclick="mudarAba('ofensores')">🚨 OFENSORES</button>
+<button class="nav-tab" onclick="mudarAba('treinamentos')">🎓 TREINAMENTOS</button>
+</div>
 
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <div style="font-size:18px; font-weight:bold;">Carregando dados...</div>
-    </div>
+<div class="loading-overlay" id="loadingOverlay">
+<div class="spinner"></div>
+<div style="font-size:18px; font-weight:bold;">Carregando dados...</div>
+</div>
 
-    <div id="abaChecklist" class="tab-pane active">
-        <div class="container">
-            <div class="kpis-grid">
-                <div class="kpi-card"><div class="kpi-label">🚗 Total Veículos</div><div class="kpi-value" id="kpiTotal">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">✅ Realizados</div><div class="kpi-value" id="kpiRealizados">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">⏳ Pendentes</div><div class="kpi-value" id="kpiFaltando">-</div></div>
-                <div class="kpi-card" title="Percentual da frota com vistoria válida. Baixa adesão = Risco Jurídico.">
-                    <div class="kpi-label">🛡️ Índice de Conformidade</div>
-                    <div class="kpi-value" id="kpiTaxa">-</div>
-                </div>
-            </div>
-            <div class="filters-section">
-                <h3>🔍 Filtros Checklist</h3>
-                <div class="filters-grid">
-                    <select id="filterRegional" class="filter-select"><option value="TODOS">Regional: Todos</option></select>
-                    <select id="filterSVC" class="filter-select"><option value="TODOS">SVC: Todos</option></select>
-                    <select id="filterStatus" class="filter-select"><option value="TODOS">Status: Todos</option><option value="verde">🟢 Excelente</option><option value="amarelo">🟡 Atenção</option><option value="vermelho">🔴 Crítico</option><option value="PENDENTE">⚠️ Pendentes</option></select>
-                </div>
-                <button onclick="clearChecklistFilters()" style="margin-top:15px; padding:8px 20px; cursor:pointer;">Limpar Filtros</button>
-            </div>
-            <div class="charts-section">
-                <div class="chart-card"><h3 style="margin-bottom:10px; color:#558B2F;">Performance Regional</h3><div class="chart-canvas"><canvas id="chartRegional"></canvas></div></div>
-                <div class="chart-card"><h3 style="margin-bottom:10px; color:#558B2F;">Status Geral</h3><div class="chart-canvas"><canvas id="chartStatus"></canvas></div></div>
-                <div class="chart-card"><h3 style="margin-bottom:10px; color:#2e7d32;">🏆 Top 10 Melhores</h3><div class="chart-canvas"><canvas id="chartTop"></canvas></div></div>
-                <div class="chart-card"><h3 style="margin-bottom:10px; color:#c62828;">📉 Top 10 Menor Adesão</h3><div class="chart-canvas"><canvas id="chartBottom"></canvas></div></div>
-            </div>
-            <div class="table-section">
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                    <h3>📋 Detalhamento Checklist</h3><button onclick="exportChecklistExcel()" class="btn-action btn-excel">📥 Exportar Excel</button>
-                </div>
-                <table id="mainTable"><thead><tr><th onclick="sortTableCheck('regional')">REGIONAL ↕</th><th onclick="sortTableCheck('svc')">SVC ↕</th><th>TOTAL</th><th>NÃO CONSTA</th><th>REALIZADO</th><th>FALTANDO</th><th>%</th></tr></thead><tbody id="tableBody"></tbody></table>
-            </div>
-            <div class="pendentes-section"><h3 id="pendentesTitle" style="color:#c62828;">🚨 Placas Pendentes</h3><div id="pendentesGrid" class="pendentes-grid"></div></div>
-        </div>
-    </div>
+<div id="abaChecklist" class="tab-pane active">
+<div class="container">
+<div class="kpis-grid">
+<div class="kpi-card"><div class="kpi-label">🚗 Total Veículos</div><div class="kpi-value" id="kpiTotal">-</div></div>
+<div class="kpi-card"><div class="kpi-label">✅ Realizados</div><div class="kpi-value" id="kpiRealizados">-</div></div>
+<div class="kpi-card"><div class="kpi-label">⏳ Pendentes</div><div class="kpi-value" id="kpiFaltando">-</div></div>
+<div class="kpi-card" title="Percentual da frota com vistoria válida. Baixa adesão = Risco Jurídico.">
+<div class="kpi-label">🛡️ Índice de Conformidade</div>
+<div class="kpi-value" id="kpiTaxa">-</div>
+</div>
+</div>
+<div class="filters-section">
+<h3>🔍 Filtros Checklist</h3>
+<div class="filters-grid">
+<select id="filterRegional" class="filter-select"><option value="TODOS">Regional: Todos</option></select>
 
-    <div id="abaOfensores" class="tab-pane">
-        <div class="container">
-            
-            <div class="controls-ofensores">
-                <div style="flex:1;"><label style="font-size:12px; font-weight:bold; color:#555;">Nome:</label><input type="text" id="of-search" class="filter-input" placeholder="Buscar..." onkeyup="renderOfensores()"></div>
-                <div class="multi-select-container">
-                    <label style="font-size:12px; font-weight:bold; color:#555;">Filtro SVCs:</label>
-                    <button class="multi-select-btn" onclick="toggleDropdown('dd-svc-of')">🏢 Selecionar SVCs <i class="fas fa-chevron-down"></i></button>
-                    <div id="dd-svc-of" class="multi-select-dropdown"></div>
-                </div>
-                <div><label style="font-size:12px; font-weight:bold; color:#555;">Início:</label><br><input type="date" id="of-date-ini" class="filter-input" onchange="renderOfensores()"></div>
-                <div><label style="font-size:12px; font-weight:bold; color:#555;">Fim:</label><br><input type="date" id="of-date-fim" class="filter-input" onchange="renderOfensores()"></div>
-                <button class="btn-action btn-update" onclick="loadOfensores(true)">🔄 Base (3 Meses)</button>
-                <button class="btn-action btn-excel" onclick="exportarOfensores()">📥 Excel</button>
-            </div>
+<div class="multi-select-container">
+<button class="multi-select-btn" onclick="toggleDropdown('dd-svc-checklist')">SVC: Todos <i class="fas fa-chevron-down"></i></button>
+<div id="dd-svc-checklist" class="multi-select-dropdown"></div>
+</div>
 
-            <div class="kpis-grid">
-                <div class="kpi-card" style="border-color:#c62828;"><div class="kpi-label">Ocorrências (3 Meses)</div><div class="kpi-value" id="of-total">0</div></div>
-                <div class="kpi-card" style="border-color:#FF9800;" title="Tempo desperdiçado = Combustível queimado sem produção.">
-                    <div class="kpi-label">💸 PCML (Desperdício)</div>
-                    <div class="kpi-value" id="of-pcml-count">0</div>
-                    <small class="kpi-help">Eventos de Ociosidade</small>
-                </div>
-                <div class="kpi-card" style="border-color:#9c27b0;">
-                    <div class="kpi-label">🚦 Infrações de Condução</div>
-                    <div class="kpi-value" id="of-tele-count">0</div>
-                    <small class="kpi-help">Risco de Acidente</small>
-                </div>
-                <div class="kpi-card" style="border-color:#333;"><div class="kpi-label">Reincidentes</div><div class="kpi-value" id="of-reinc-count">0</div></div>
-            </div>
+<select id="filterStatus" class="filter-select"><option value="TODOS">Status: Todos</option><option value="verde">🟢 Excelente</option><option value="amarelo">🟡 Atenção</option><option value="vermelho">🔴 Crítico</option><option value="PENDENTE">⚠️ Pendentes</option></select>
+</div>
+<button onclick="clearChecklistFilters()" style="margin-top:15px; padding:8px 20px; cursor:pointer;">Limpar Filtros</button>
+</div>
+<div class="charts-section">
+<div class="chart-card"><h3 style="margin-bottom:10px; color:#558B2F;">Performance Regional</h3><div class="chart-canvas"><canvas id="chartRegional"></canvas></div></div>
+<div class="chart-card"><h3 style="margin-bottom:10px; color:#558B2F;">Status Geral</h3><div class="chart-canvas"><canvas id="chartStatus"></canvas></div></div>
+<div class="chart-card"><h3 style="margin-bottom:10px; color:#2e7d32;">🏆 Top 10 Melhores</h3><div class="chart-canvas"><canvas id="chartTop"></canvas></div></div>
+<div class="chart-card"><h3 style="margin-bottom:10px; color:#c62828;">📉 Top 10 Menor Adesão</h3><div class="chart-canvas"><canvas id="chartBottom"></canvas></div></div>
+</div>
+<div class="table-section">
+<div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+<h3>📋 Detalhamento Checklist</h3><button onclick="exportChecklistExcel()" class="btn-action btn-excel">📥 Exportar Excel</button>
+</div>
+<table id="mainTable"><thead><tr><th onclick="sortTableCheck('regional')">REGIONAL ↕</th><th onclick="sortTableCheck('svc')">SVC ↕</th><th>TOTAL</th><th>NÃO CONSTA</th><th>REALIZADO</th><th>FALTANDO</th><th>%</th></tr></thead><tbody id="tableBody"></tbody></table>
+</div>
+<div class="pendentes-section"><h3 id="pendentesTitle" style="color:#c62828;">🚨 Placas Pendentes</h3><div id="pendentesGrid" class="pendentes-grid"></div></div>
+</div>
+</div>
 
-            <div class="charts-section">
-                <div class="chart-card">
-                    <h3 style="margin-bottom:10px; color:#d32f2f;">🚦 Ofensores Scorecard por SVC</h3>
-                    <div class="chart-canvas"><canvas id="chartOfensoresScoreSVC"></canvas></div>
-                    <small style="color:#666; font-style:italic;">Clique para filtrar/limpar o filtro</small>
-                </div>
-                <div class="chart-card">
-                    <h3 style="margin-bottom:10px; color:#f57c00;">💸 Ofensores PCML por SVC</h3>
-                    <div class="chart-canvas"><canvas id="chartOfensoresPCMLSVC"></canvas></div>
-                    <small style="color:#666; font-style:italic;">Clique para filtrar/limpar o filtro</small>
-                </div>
-            </div>
+<div id="abaOfensores" class="tab-pane">
+<div class="container">
 
-            <div class="table-section">
-                <h3>⚠️ Tabela Detalhada (Soma das Ocorrências)</h3>
-                <p style="font-size:12px; color:#666; margin-bottom:10px;">Clique no nome para acessar o <b>Protocolo Prescritivo</b>.</p>
-                <table id="tbl-ofensores">
-                    <thead>
-                        <tr style="background:#444; color:white;">
-                            <th>Motorista</th>
-                            <th>SVC</th>
-                            <th>Recorrência e Recência</th>
-                            <th>Tempo PCML Total</th>
-                            <th style="color:#ff5252; border-bottom: 3px solid red; font-weight:900;">VELOCIDADE (Risco Crítico)</th>
-                            <th>Aceleração</th>
-                            <th>Freada</th>
-                            <th>Curva</th>
-                            <th>Cinto</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+<div class="controls-ofensores">
+<div style="width:100%; display:flex; justify-content:flex-end; margin-bottom:10px;">
+<div id="ofensores-period-badge" style="font-size:12px; color:#666; background:#f5f5f5; padding:5px 12px; border-radius:4px; border:1px solid #e0e0e0;"></div>
+</div>
 
-    <div id="abaTreinamentos" class="tab-pane">
-        <div class="container">
-            
-            <div class="treino-executive-header">
-                <h2>TREINAMENTOS – PENDÊNCIAS E CONFORMIDADE OPERACIONAL</h2>
-            </div>
-            
-            <div class="treino-controls-box">
-                <div style="width: 100%; margin-bottom: 5px;"><p style="color:#666; font-size: 13px;">Selecione abaixo para filtrar a visão executiva:</p></div>
-                <div class="multi-select-container"><button class="multi-select-btn" onclick="toggleDropdown('dd-svc')">🏢 Selecionar SVCs <i class="fas fa-chevron-down"></i></button><div id="dd-svc" class="multi-select-dropdown"></div></div>
-                <div class="multi-select-container"><button class="multi-select-btn" onclick="toggleDropdown('dd-curso')">📚 Selecionar Cursos <i class="fas fa-chevron-down"></i></button><div id="dd-curso" class="multi-select-dropdown"></div></div>
-                <button class="btn-action btn-update" onclick="carregarTreinamentos(true)"><i class="fas fa-sync"></i> Atualizar Dados</button>
-                <button class="btn-action btn-excel" onclick="exportarTreinoExcel()"><i class="fas fa-file-excel"></i> Exportar Dados</button>
-            </div>
-            
-            <div class="treino-kpis">
-                <div class="kpi-box-t" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);"><div class="kpi-val" id="tkpi-vencidos">0</div><div>Volume de Pendências</div></div>
-                <div class="kpi-box-t" style="background: #34495e;"><div class="kpi-val" id="tkpi-total">0</div><div>Total Monitorado (Base)</div></div>
-            </div>
+<div style="flex:1;"><label style="font-size:12px; font-weight:bold; color:#555;">Nome:</label><input type="text" id="of-search" class="filter-input" placeholder="Buscar..." onkeyup="renderOfensores()"></div>
+<div class="multi-select-container">
+<label style="font-size:12px; font-weight:bold; color:#555;">Filtro SVCs:</label>
+<button class="multi-select-btn" onclick="toggleDropdown('dd-svc-of')">🏢 Selecionar SVCs <i class="fas fa-chevron-down"></i></button>
+<div id="dd-svc-of" class="multi-select-dropdown"></div>
+</div>
+<div><label style="font-size:12px; font-weight:bold; color:#555;">Início:</label><br><input type="date" id="of-date-ini" class="filter-input" onchange="renderOfensores()"></div>
+<div><label style="font-size:12px; font-weight:bold; color:#555;">Fim:</label><br><input type="date" id="of-date-fim" class="filter-input" onchange="renderOfensores()"></div>
 
-            <div class="chart-card" style="margin-bottom: 30px;">
-                <h3 style="margin-bottom:10px; color:#444;">📊 Pendências por SVC (Toggle de Filtro)</h3>
-                <div class="chart-canvas" style="height: 350px;">
-                    <canvas id="chartTreinoSVC"></canvas>
-                </div>
-                <small style="color:#666; font-style:italic; margin-top:5px; display:block;">Clique na barra para filtrar/limpar.</small>
-            </div>
+<button class="btn-action btn-update" onclick="loadOfensores(true)">🔄 Base (3 Meses)</button>
+<button class="btn-action btn-excel" onclick="exportarOfensores()">📥 Excel</button>
 
-            <div class="chart-card" style="margin-bottom: 30px;">
-                <h3 style="margin-bottom:10px; color:#2c3e50;">📚 Pendências de Treinamento por Curso</h3>
-                <div class="chart-canvas" style="height: 400px;"><canvas id="graficoCursosTreino"></canvas></div>
-            </div>
-            
-            <div class="table-section">
-                <h3 style="margin-bottom:15px;">📋 Detalhamento Operacional</h3>
-                <table style="width:100%;" id="tabelaTreino">
-                    <thead>
-                        <tr>
-                            <th>Motorista</th>
-                            <th>SVC</th>
-                            <th>Curso</th>
-                            <th>Status</th>
-                            <th>Referência / Última Rota</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <p id="contadorTreino" style="margin-top:10px; color:#666;"></p>
-            </div>
+</div>
 
-        </div>
-    </div>
+<div class="kpis-grid">
+<div class="kpi-card" style="border-color:#c62828;"><div class="kpi-label">Ocorrências (Filtro)</div><div class="kpi-value" id="of-total">0</div></div>
+<div class="kpi-card" style="border-color:#FF9800;" title="Tempo desperdiçado = Combustível queimado sem produção.">
+<div class="kpi-label">💸 PCML (Desperdício)</div>
+<div class="kpi-value" id="of-pcml-count">0</div>
+<small class="kpi-help">Eventos de Ociosidade</small>
+</div>
+<div class="kpi-card" style="border-color:#9c27b0;">
+<div class="kpi-label">🚦 Infrações de Condução</div>
+<div class="kpi-value" id="of-tele-count">0</div>
+<small class="kpi-help">Risco de Acidente</small>
+</div>
+<div class="kpi-card" style="border-color:#333;"><div class="kpi-label">Reincidentes (Filtro)</div><div class="kpi-value" id="of-reinc-count">0</div></div>
+</div>
 
-    <script>
-        // Configuração Global do Chart DataLabels
-        Chart.register(ChartDataLabels);
-        
-        const SHEET_ID = '1OzrdPS7am7FSHOrVlT3qD5NBGm0TE1NERvRVKnFGb90';
-        const GID_CHECKLIST = '1226817368';
-        const SHEET_NAME_TREINO = 'Consolidado treinamentos';
-        
-        const SHEET_ID_OFENSORES = '1q0G9L8Tu9zI7ziE4zOx0E-ngWgAmqjzqfh16P045PM8';
-        const SHEET_NAME_OFENSORES = 'DB_OFENSORES';
-        
-        let dashData = null, chartsCheck = {}, chartsOf = {};
-        let dadosTreinoAll = [], dadosTreinoFiltered = [], chartTreinoInst = null, chartTreinoSVCInst = null, treinoLoaded = false;
-        let dataOfensores = [], ofensoresLoaded = false;
+<div class="charts-section">
+<div class="chart-card">
+<h3 style="margin-bottom:10px; color:#d32f2f;">🚦 Ofensores Scorecard por SVC</h3>
+<div class="chart-canvas"><canvas id="chartOfensoresScoreSVC"></canvas></div>
+<small style="color:#666; font-style:italic;">Clique para filtrar/limpar o filtro</small>
+</div>
+<div class="chart-card">
+<h3 style="margin-bottom:10px; color:#f57c00;">💸 Ofensores PCML por SVC</h3>
+<div class="chart-canvas"><canvas id="chartOfensoresPCMLSVC"></canvas></div>
+<small style="color:#666; font-style:italic;">Clique para filtrar/limpar o filtro</small>
+</div>
+</div>
 
-        // Variaveis de Estado para Filtros Toggle
-        let activeFilterSVC_Ofensores = null;
-        let activeFilterSVC_Treino = null;
-        let activeFilterCurso_Treino = null; // NOVO
-        let activeChecklistFilter = null; // NOVO: {type: 'regional'|'svc'|'status', value: '...'}
+<div class="table-section">
+<h3>⚠️ Tabela Detalhada</h3>
 
-        function mudarAba(aba) {
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            if (aba === 'checklist') {
-                document.querySelectorAll('.nav-tab')[0].classList.add('active');
-                document.getElementById('abaChecklist').classList.add('active');
-            } else if (aba === 'ofensores') {
-                document.querySelectorAll('.nav-tab')[1].classList.add('active');
-                document.getElementById('abaOfensores').classList.add('active');
-                if(!ofensoresLoaded) { loadOfensores(); ofensoresLoaded = true; }
-            } else {
-                document.querySelectorAll('.nav-tab')[2].classList.add('active');
-                document.getElementById('abaTreinamentos').classList.add('active');
-                if(!treinoLoaded) { carregarTreinamentos(); treinoLoaded = true; }
-            }
-        }
+<div class="view-mode-container">
+<button class="view-mode-btn" id="btnMode3M" onclick="changeViewMode('3M')">Somente 3 Meses</button>
+<button class="view-mode-btn" id="btnModePeriodo" onclick="changeViewMode('PERIODO')">Somente Período</button>
+<button class="view-mode-btn" id="btnModeCompare" onclick="changeViewMode('COMPARE')">Comparar</button>
+</div>
 
-        window.addEventListener('load', () => { loadChecklist(); setInterval(() => loadChecklist(true), 300000); });
+<p style="font-size:12px; color:#666; margin-bottom:10px;">Clique no nome para acessar o <b>Protocolo Prescritivo</b>.</p>
+<table id="tbl-ofensores">
+<thead>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</div>
 
-        window.onclick = function(event) {
-            if (!event.target.matches('.multi-select-btn') && !event.target.matches('.multi-select-btn *')) {
-                document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('show'));
-            }
-            if (event.target == document.getElementById('driverModal')) {
-                closeDriverModal();
-            }
-        }
+<div id="abaTreinamentos" class="tab-pane">
+<div class="container">
 
-        /* --- LOGICA MODAL PRESCRITIVO & SLA --- */
-        function calculateSLA(eventDateStr, slaHours) {
-            const eventDate = parseDateBR(eventDateStr);
-            eventDate.setHours(8, 0, 0, 0); 
-            
-            const deadline = new Date(eventDate.getTime() + (slaHours * 60 * 60 * 1000));
-            const now = new Date();
-            const diffMs = deadline - now;
-            const diffHrs = Math.ceil(diffMs / (1000 * 60 * 60));
+<div class="treino-executive-header">
+<h2>TREINAMENTOS – PENDÊNCIAS E CONFORMIDADE OPERACIONAL</h2>
+</div>
 
-            if (diffMs < 0) {
-                return { status: 'ATRASADO', label: `-${Math.abs(diffHrs)}h (Expirado)`, class: 'expired', sortOrder: 0 };
-            } else if (diffHrs <= 4) {
-                return { status: 'CRÍTICO', label: `${diffHrs}h Restantes`, class: 'critical', sortOrder: 1 };
-            } else {
-                return { status: 'NORMAL', label: `${diffHrs}h Restantes`, class: 'normal', sortOrder: 2 };
-            }
-        }
+<div class="treino-controls-box">
+<div style="width: 100%; margin-bottom: 5px;"><p style="color:#666; font-size: 13px;">Selecione abaixo para filtrar a visão executiva:</p></div>
+<div class="multi-select-container"><button class="multi-select-btn" onclick="toggleDropdown('dd-svc')">🏢 Selecionar SVCs <i class="fas fa-chevron-down"></i></button><div id="dd-svc" class="multi-select-dropdown"></div></div>
+<div class="multi-select-container"><button class="multi-select-btn" onclick="toggleDropdown('dd-curso')">📚 Selecionar Cursos <i class="fas fa-chevron-down"></i></button><div id="dd-curso" class="multi-select-dropdown"></div></div>
+<button class="btn-action btn-update" onclick="carregarTreinamentos(true)"><i class="fas fa-sync"></i> Atualizar Dados</button>
+<button class="btn-action btn-excel" onclick="exportarTreinoExcel()"><i class="fas fa-file-excel"></i> Exportar Dados</button>
+</div>
 
-        function determineProtocol(summary, lastEventDate) {
-             if (summary.speed > 0) {
-                return {
-                    code: 'P-01', name: 'RISCO CRÍTICO VIDA', severity: 'critical',
-                    action: 'INTERVENÇÃO IMEDIATA + MEDIDA OPERACIONAL NÍVEL 1',
-                    reason: 'Gatilho: Excesso de velocidade superior a 20% do limite da via.',
-                    rule: 'Ref: Norma Operacional 04.2 - Limiar de Tolerância Zero.',
-                    sla_hours: 4, impact: '📉 -85% Probabilidade de Sinistro (7d)'
-                };
-            } else if (summary.events > 3) {
-                 return {
-                    code: 'P-04', name: 'REINCIDÊNCIA', severity: 'critical',
-                    action: 'RESTRIÇÃO SISTÊMICA PREVENTIVA',
-                    reason: 'Gatilho: Reincidência sistêmica acima do limiar (> 3 eventos).',
-                    rule: 'Ref: Diretriz de Gestão de Consequências.',
-                    sla_hours: 0, impact: '🛡️ Bloqueio de Risco Operacional'
-                };
-            } else if ((summary.accel + summary.brake) > 5) {
-                return {
-                    code: 'P-02', name: 'COMPORTAMENTAL', severity: 'warning',
-                    action: 'RECICLAGEM TÉCNICA (DIREÇÃO DEFENSIVA)',
-                    reason: 'Gatilho: Padrão de condução fora dos parâmetros de estabilidade.',
-                    rule: 'Ref: Manual de Boas Práticas - Condução Segura.',
-                    sla_hours: 24, impact: '📉 Otimização de Score em 40%'
-                };
-            } else {
-                return {
-                    code: 'P-03', name: 'EFICIÊNCIA', severity: 'info',
-                    action: 'CHECKLIST DE VEÍCULO E PROTOCOLO DE ECONOMIA',
-                    reason: 'Gatilho: Desvio de indicadores de eficiência (Motor Ocioso).',
-                    rule: 'Ref: Meta de Custo Operacional.',
-                    sla_hours: 48, impact: '💰 Redução de Desperdício'
-                };
-            }
-        }
+<div class="treino-kpis">
+<div class="kpi-box-t" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);"><div class="kpi-val" id="tkpi-vencidos">0</div><div>Volume de Pendências</div></div>
+<div class="kpi-box-t" style="background: #34495e;"><div class="kpi-val" id="tkpi-total">0</div><div>Total Monitorado (Base)</div></div>
+</div>
 
-        function openDriverModal(driverName) {
-            const driverData = dataOfensores.filter(d => d.nome === driverName);
-            if(driverData.length === 0) return;
-            driverData.sort((a,b) => parseDateBR(b.dt) - parseDateBR(a.dt));
-            const lastEvent = driverData[0];
+<div class="chart-card" style="margin-bottom: 30px;">
+<h3 style="margin-bottom:10px; color:#444;">📊 Pendências por SVC (Toggle de Filtro)</h3>
+<div class="chart-canvas" style="height: 350px;">
+<canvas id="chartTreinoSVC"></canvas>
+</div>
+<small style="color:#666; font-style:italic; margin-top:5px; display:block;">Clique na barra para filtrar/limpar.</small>
+</div>
 
-            const summary = { pcml_sec: 0, accel: 0, brake: 0, corner: 0, speed: 0, seatbelt: 0, events: 0 };
-            driverData.forEach(d => {
-                summary.events++;
-                if (d.tipo === 'PCML') summary.pcml_sec += timeToSeconds(d.val);
-                if (d.tipo === 'SCORECARD') {
-                    summary.accel += parseFloat(d.ac||0); summary.brake += parseFloat(d.fr||0);
-                    summary.corner += parseFloat(d.cu||0); summary.speed += parseFloat(d.ve||0);
-                    summary.seatbelt += parseFloat(d.cin||0);
-                }
-            });
+<div class="chart-card" style="margin-bottom: 30px;">
+<h3 style="margin-bottom:10px; color:#2c3e50;">📚 Pendências de Treinamento por Curso</h3>
+<div class="chart-canvas" style="height: 400px;"><canvas id="graficoCursosTreino"></canvas></div>
+<small style="color:#666; font-style:italic; margin-top:5px; display:block;">Clique na barra para filtrar/limpar.</small>
+</div>
 
-            const protocol = determineProtocol(summary, lastEvent.dt);
-            const sla = calculateSLA(lastEvent.dt, protocol.sla_hours);
+<div class="table-section">
+<h3 style="margin-bottom:15px;">📋 Detalhamento Operacional</h3>
+<table style="width:100%;" id="tabelaTreino">
+<thead>
+<tr>
+<th>Motorista</th>
+<th>SVC</th>
+<th>Curso</th>
+<th>Status</th>
+<th>Referência / Última Rota</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<p id="contadorTreino" style="margin-top:10px; color:#666;"></p>
+</div>
 
-            const htmlContent = `
-                <div class="prescriptive-header ${protocol.severity === 'critical' ? 'critical' : ''}">
-                    <div class="driver-info">
-                        <h2>${driverName}</h2>
-                        <span>SVC: ${lastEvent.svc} | PROTOCOLO: ${protocol.code}</span>
-                    </div>
-                    <div class="status-badge">${protocol.severity === 'critical' ? 'RISCO CRÍTICO' : 'ALERTA OPERACIONAL'}</div>
-                    <button class="close-modal-btn" onclick="closeDriverModal()">&times;</button>
-                </div>
-                <div class="prescriptive-body">
-                    <div class="facts-column">
-                        <div class="section-title">FATORES DE DISPARO (3 MESES)</div>
-                        <ul class="fact-list">
-                            <li><span>Velocidade:</span> <strong>${summary.speed}</strong></li>
-                            <li><span>Aceleração:</span> <strong>${summary.accel}</strong></li>
-                            <li><span>Freada:</span> <strong>${summary.brake}</strong></li>
-                            <li><span>Uso Cinto (Violações):</span> <strong>${summary.seatbelt}</strong></li>
-                            <li><span>PCML:</span> <strong>${secondsToTimeFormatted(summary.pcml_sec)}</strong></li>
-                            <li><span>Total Ocorrências:</span> <strong>${summary.events}</strong></li>
-                        </ul>
-                        <div class="fact-footer">Última Detecção: ${lastEvent.dt}</div>
-                    </div>
-                    <div class="protocol-column">
-                        <div class="protocol-card ${protocol.severity === 'critical' ? 'p-critical' : ''}">
-                            <div class="protocol-header"><span>PROTOCOLO SISTÊMICO ATIVO</span><span>${protocol.code}</span></div>
-                            <div class="mandatory-action">${protocol.action}</div>
-                            <div class="technical-reason">${protocol.reason}</div>
-                            <div class="ops-rule">${protocol.rule}</div>
-                            
-                            ${summary.seatbelt > 0 ? `
-                            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                                <div style="font-size:12px; font-weight:700; color:#d32f2f; margin-bottom:5px;">🚨 ATENÇÃO: CINTO DE SEGURANÇA</div>
-                                <ul style="font-size:12px; color:#333; list-style:none;">
-                                    <li>• Não utilização: <b>${summary.seatbelt}</b> ocorrências registradas.</li>
-                                </ul>
-                                <div style="font-size:11px; font-weight:bold; margin-top:8px; color:#555;">Medidas Recomendadas:</div>
-                                <ul style="font-size:11px; color:#666; padding-left:15px; margin-top:3px;">
-                                    <li>Orientação imediata sobre uso obrigatório do cinto</li>
-                                    <li>Reforço em treinamento de segurança básica</li>
-                                    <li>Alerta operacional em tempo real para reincidência</li>
-                                </ul>
-                            </div>
-                            ` : ''}
+</div>
+</div>
 
-                            <div class="metrics-grid">
-                                <div class="metric-box">
-                                    <span class="metric-label">SLA DE EXECUÇÃO</span>
-                                    <span class="metric-value ${sla.class}">${sla.label}</span>
-                                </div>
-                                <div class="metric-box">
-                                    <span class="metric-label">MITIGAÇÃO PROJETADA</span>
-                                    <span class="metric-value">${protocol.impact}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="prescriptive-footer">
-                    <span>ID ÚNICO: ${Math.floor(Math.random()*1000000)} • AUDITORIA DE SISTEMA ATIVA</span>
-                </div>
-            `;
-            document.getElementById('prescriptiveContent').innerHTML = htmlContent;
-            document.getElementById('driverModal').classList.add('active');
-        }
-        function closeDriverModal() { document.getElementById('driverModal').classList.remove('active'); }
+<script>
+// Configuração Global do Chart DataLabels
+Chart.register(ChartDataLabels);
 
-        /* --- CHECKLIST LOGIC --- */
-        function loadChecklist(silent=false) {
-            if(!silent) document.getElementById('loadingOverlay').classList.add('active');
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID_CHECKLIST}&headers=1`;
-            const script = document.createElement('script'); script.src = url;
-            window.google = window.google || {}; window.google.visualization = window.google.visualization || {}; window.google.visualization.Query = window.google.visualization.Query || {};
-            window.google.visualization.Query.setResponse = function(response) {
-                if(response.status === 'error') { if(!silent) alert('Erro Checklist.'); document.getElementById('loadingOverlay').classList.remove('active'); return; }
-                const cols = response.table.cols; const rows = response.table.rows;
-                const colMap = {}; cols.forEach((c, i) => { if(c.label) colMap[c.label.trim()] = i; });
-                const data = rows.map(r => {
-                    const rowObj = {}; Object.keys(colMap).forEach(key => { const idx = colMap[key]; rowObj[key] = (r.c[idx]) ? (r.c[idx].f || r.c[idx].v) : ''; }); return rowObj;
-                });
-                analyzeChecklist(data);
-            };
-            document.body.appendChild(script);
-        }
+// 🔹 REGRA DE NEGÓCIO: VELOCIDADE (Excesso > 8%)
+const SPEED_EXCESS_THRESHOLD = 8;
 
-        function analyzeChecklist(data) {
-            const now = new Date(); let dIni, dFim;
-            if(now.getDate()<=15) { dIni=new Date(now.getFullYear(),now.getMonth(),1); dFim=new Date(now.getFullYear(),now.getMonth(),15,23,59,59); } else { dIni=new Date(now.getFullYear(),now.getMonth(),16); dFim=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59); }
-            const grouped = {};
-            data.forEach(row => {
-                const reg = row.REGIONAL||'N/A', svc = row.SVC||'N/A', placa = row.Placa||'', consta = (row['CONSTA NA VEC']||'').toUpperCase();
-                const isNC = consta.includes('NO CONSTA')||consta.includes('NÃO CONSTA');
-                const key = reg+'|'+svc;
-                if(!grouped[key]) grouped[key]={regional:reg,svc:svc,total:0,nao_consta:0,validos:0,real:0,pends:[],nc_list:[]};
-                grouped[key].total++;
-                if(isNC) { grouped[key].nao_consta++; grouped[key].nc_list.push(placa); }
-                else {
-                    grouped[key].validos++; let feito = false;
-                    if(row.REALIZADO) {
-                        let dt=null; const valRealizado = String(row.REALIZADO);
-                        if(valRealizado.includes('/')) { const p=valRealizado.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(p)dt=new Date(p[3],p[2]-1,p[1]); } 
-                        else if(!isNaN(valRealizado)) dt=new Date((valRealizado-25569)*86400000);
-                        if(dt&&dt>=dIni&&dt<=dFim) feito=true;
-                    } 
-                    if(feito) grouped[key].real++; else grouped[key].pends.push(placa);
-                }
-            });
-            const arr = Object.values(grouped).map(i=>({...i, faltando:i.validos-i.real, perc:i.validos>0?(i.real/i.validos*100):0}));
-            dashData = arr; updateCheckUI(arr);
-            document.getElementById('loadingOverlay').classList.remove('active');
-        }
+// Helper seguro para converter strings/floats "8,5%" em float 8.5
+function parseNum(v) {
+if (typeof v === 'number') return v;
+if (!v) return 0;
+// Troca virgula por ponto, remove %, remove espaços
+let s = String(v).replace(',', '.').replace('%', '').trim();
+let n = parseFloat(s);
+return isNaN(n) ? 0 : n;
+}
 
-        function updateCheckUI(data) {
-            let flt = data;
-            
-            // 1. Aplica Filtro Interativo (Clique)
-            if (activeChecklistFilter) {
-                if (activeChecklistFilter.type === 'regional') {
-                    flt = flt.filter(d => d.regional === activeChecklistFilter.value);
-                } else if (activeChecklistFilter.type === 'svc') {
-                    flt = flt.filter(d => d.svc === activeChecklistFilter.value);
-                } else if (activeChecklistFilter.type === 'status') {
-                    if (activeChecklistFilter.value === 'Excelente') flt = flt.filter(d => d.perc >= 80);
-                    else if (activeChecklistFilter.value === 'Atenção') flt = flt.filter(d => d.perc >= 50 && d.perc < 80);
-                    else if (activeChecklistFilter.value === 'Crítico') flt = flt.filter(d => d.perc < 50);
-                }
-            }
+// Verifica se houve excesso (retorna booleano)
+function isSpeedExcess(val) {
+return parseNum(val) > SPEED_EXCESS_THRESHOLD;
+}
 
-            // 2. Aplica Filtros Dropdown (mantido para compatibilidade, atuando como refinamento ou fallback)
-            const reg = document.getElementById('filterRegional').value; const svc = document.getElementById('filterSVC').value; const sts = document.getElementById('filterStatus').value;
-            if(reg!=='TODOS') flt=flt.filter(d=>d.regional===reg);
-            if(svc!=='TODOS') flt=flt.filter(d=>d.svc===svc);
-            if(sts!=='TODOS') { if(sts==='verde') flt=flt.filter(d=>d.perc>=80); else if(sts==='amarelo') flt=flt.filter(d=>d.perc>=50&&d.perc<80); else if(sts==='vermelho') flt=flt.filter(d=>d.perc<50); else if(sts==='PENDENTE') flt=flt.filter(d=>d.faltando>0); }
-            
-            const tot=flt.reduce((s,i)=>s+i.validos,0), rea=flt.reduce((s,i)=>s+i.real,0);
-            document.getElementById('kpiTotal').innerText = tot; document.getElementById('kpiRealizados').innerText = rea; document.getElementById('kpiFaltando').innerText = tot-rea; document.getElementById('kpiTaxa').innerText = tot>0?(rea/tot*100).toFixed(1)+'%':'0%';
-            if(document.getElementById('filterRegional').options.length===1) { [...new Set(data.map(d=>d.regional))].sort().forEach(r=>document.getElementById('filterRegional').add(new Option(r,r))); [...new Set(data.map(d=>d.svc))].sort().forEach(s=>document.getElementById('filterSVC').add(new Option(s,s))); }
-            renderChecklistCharts(flt);
-            const tb = document.getElementById('tableBody'); tb.innerHTML='';
-            flt.sort((a,b)=>b.perc-a.perc).forEach(i=>{ let c='#ffcdd2'; if(i.perc>=80)c='#c8e6c9'; else if(i.perc>=50)c='#fff9c4'; tb.innerHTML+=`<tr><td>${i.regional}</td><td><b>${i.svc}</b></td><td>${i.total}</td><td style="color:#666">${i.nao_consta}</td><td>${i.real}</td><td style="color:${i.faltando>0?'red':'green'}">${i.faltando}</td><td style="background:${c}">${i.perc.toFixed(1)}%</td></tr>`; });
-            const pg = document.getElementById('pendentesGrid'); pg.innerHTML='';
-            const pends = flt.filter(i=>i.faltando>0);
-            document.getElementById('pendentesTitle').innerText = `🚨 Pendentes (${pends.reduce((s,i)=>s+i.pends.length,0)})`;
-            pends.forEach(i=>{ let html=`<div class="pendente-card"><strong>${i.svc}</strong><br>`; i.pends.forEach(p=>html+=`<span class="placa-badge">${p}</span>`); i.nc_list.forEach(p=>html+=`<span class="placa-badge placa-nao-consta">${p}</span>`); pg.innerHTML+=html+'</div>'; });
-        }
+/* --- DATA PARSING ROBUSTO & KEY --- */
+// CORREÇÃO CRÍTICA: Força o horário para 12:00:00 para evitar Timezone Shift (-03:00)
+function parseDateAny(v){
+if(!v) return null;
+if(v instanceof Date) return v;
 
-        function handleChecklistClick(evt, element, chartInstance, type) {
-            if (element.length > 0) {
-                const idx = element[0].index;
-                const value = chartInstance.data.labels[idx];
-                
-                // Lógica de Toggle
-                if (activeChecklistFilter && activeChecklistFilter.type === type && activeChecklistFilter.value === value) {
-                    activeChecklistFilter = null; // Remove filtro
-                } else {
-                    activeChecklistFilter = { type: type, value: value }; // Define filtro
-                }
-                updateCheckUI(dashData);
-            }
-        }
+// Excel Serial Date (base 1899-12-30)
+// Adiciona 12 horas (43200000ms) para cair no meio do dia
+if (typeof v === 'number') {
+return new Date(Math.round((v - 25569) * 86400000) + 43200000); 
+}
 
-        function renderChecklistCharts(data) {
-            // Helper de cor para seleção
-            const getColor = (type, value, defaultColor) => {
-                if (!activeChecklistFilter) return defaultColor;
-                if (activeChecklistFilter.type !== type) return '#e0e0e0'; // Dim if filtering by other type
-                return activeChecklistFilter.value === value ? defaultColor : '#e0e0e0';
-            };
+const s = String(v).trim();
 
-            const regMap={}; data.forEach(d=>{ if(!regMap[d.regional])regMap[d.regional]={t:0,r:0}; regMap[d.regional].t+=d.validos; regMap[d.regional].r+=d.real; });
-            const lbls=Object.keys(regMap).sort(), vals=lbls.map(k=>regMap[k].t>0?(regMap[k].r/regMap[k].t*100):0);
-            const regColors = lbls.map(l => getColor('regional', l, '#7CB342'));
+// GViz string "Date(2026,1,7)"
+if (s.startsWith('Date(')) {
+const nums = s.match(/\d+/g);
+if (nums) {
+// Força 12:00:00
+return new Date(parseInt(nums[0]), parseInt(nums[1]), parseInt(nums[2]), 12, 0, 0);
+}
+}
 
-            if(chartsCheck.reg)chartsCheck.reg.destroy(); 
-            chartsCheck.reg = new Chart(document.getElementById('chartRegional'), { 
-                type:'bar', 
-                data:{labels:lbls, datasets:[{label:'% Real',data:vals,backgroundColor:regColors}]}, 
-                options:{
-                    maintainAspectRatio:false, scales:{y:{max:100}}, 
-                    plugins:{legend:{display:false}, datalabels:{color:'white',formatter:v=>v.toFixed(0)+'%'}},
-                    onClick: (e, el) => handleChecklistClick(e, el, chartsCheck.reg, 'regional')
-                } 
-            });
-            
-            let sVerde=0, sAmarelo=0, sVermelho=0; data.forEach(d=>{ if(d.perc>=80)sVerde++; else if(d.perc>=50)sAmarelo++; else sVermelho++; });
-            const stLbls = ['Excelente','Atenção','Crítico'];
-            const stColors = stLbls.map((l, i) => getColor('status', l, ['#4caf50','#fbc02d','#f44336'][i]));
+// dd/mm/yyyy
+if (s.includes('/')) {
+const p = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+if (p) return new Date(p[3], p[2]-1, p[1], 12, 0, 0);
+}
 
-            if(chartsCheck.status)chartsCheck.status.destroy(); 
-            chartsCheck.status = new Chart(document.getElementById('chartStatus'), { 
-                type:'doughnut', 
-                data:{labels:stLbls, datasets:[{data:[sVerde,sAmarelo,sVermelho], backgroundColor:stColors}]}, 
-                options:{
-                    maintainAspectRatio:false, 
-                    plugins:{datalabels:{color:'white',font:{weight:'bold'}}},
-                    onClick: (e, el) => handleChecklistClick(e, el, chartsCheck.status, 'status')
-                } 
-            });
-            
-            const sorted = [...data].sort((a,b)=>b.perc-a.perc).slice(0,10);
-            const topLbls = sorted.map(d=>d.svc);
-            const topColors = topLbls.map(l => getColor('svc', l, '#2e7d32'));
+// yyyy-mm-dd
+if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+// Pega apenas a parte da data e monta string com meio-dia
+const cleanDate = s.split('T')[0];
+return new Date(cleanDate + "T12:00:00");
+}
 
-            if(chartsCheck.top)chartsCheck.top.destroy(); 
-            chartsCheck.top = new Chart(document.getElementById('chartTop'), { 
-                type:'bar', 
-                data:{labels:topLbls, datasets:[{label:'% Real',data:sorted.map(d=>d.perc),backgroundColor:topColors}]}, 
-                options:{
-                    indexAxis:'y', maintainAspectRatio:false, 
-                    plugins:{legend:{display:false}, datalabels:{color:'white',formatter:v=>v.toFixed(0)+'%'}},
-                    onClick: (e, el) => handleChecklistClick(e, el, chartsCheck.top, 'svc')
-                } 
-            });
-            
-            const bottom = [...data].sort((a,b)=>a.perc-b.perc).slice(0,10);
-            const botLbls = bottom.map(d=>d.svc);
-            const botColors = botLbls.map(l => getColor('svc', l, '#c62828'));
+const d = new Date(s);
+// Se falhar tudo, tenta setar hora para 12 se for data válida
+if(!isNaN(d)) {
+d.setHours(12,0,0,0);
+return d;
+}
+return new Date(0);
+}
 
-            if(chartsCheck.bot)chartsCheck.bot.destroy(); 
-            chartsCheck.bot = new Chart(document.getElementById('chartBottom'), { 
-                type:'bar', 
-                data:{labels:botLbls, datasets:[{label:'% Menor Adesão', data:bottom.map(d=> (100 - d.perc).toFixed(1) ), backgroundColor:botColors}]}, 
-                options:{
-                    indexAxis:'y', maintainAspectRatio:false, 
-                    plugins:{legend:{display:false}, datalabels:{color:'white',formatter:v=>v+'%'}},
-                    onClick: (e, el) => handleChecklistClick(e, el, chartsCheck.bot, 'svc')
-                } 
-            });
-        }
+// Retorna Inteiro YYYYMMDD (Comparação Rápida e Segura)
+function ymdKey(v) {
+let d = (v instanceof Date) ? v : parseDateAny(v);
+if (!d || isNaN(d.getTime())) return 0;
 
-        /* --- OFENSORES LOGIC --- */
-        function loadOfensores(force=false) {
-            document.getElementById('loadingOverlay').classList.add('active');
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID_OFENSORES}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME_OFENSORES}`;
-            const script = document.createElement('script'); script.src = url;
-            window.google = window.google || {}; window.google.visualization = window.google.visualization || {}; window.google.visualization.Query = window.google.visualization.Query || {};
-            window.google.visualization.Query.setResponse = function(res) {
-                if(res.status === 'error') { alert('Erro Ofensores.'); document.getElementById('loadingOverlay').classList.remove('active'); return; }
-                const rows = res.table.rows;
-                dataOfensores = rows.map(r => ({
-                    dt: r.c[0]?.v, nome: r.c[1]?.v, svc: r.c[2]?.v, reg: r.c[3]?.v, placa: r.c[4]?.v, tipo: r.c[5]?.v, val: r.c[6]?.v,
-                    ac: r.c[8]?.v||0, fr: r.c[9]?.v||0, cu: r.c[10]?.v||0, ve: r.c[11]?.v||0, cin: r.c[12]?.v||0
-                }));
-                const limitDate = new Date(); limitDate.setMonth(limitDate.getMonth() - 3);
-                dataOfensores = dataOfensores.filter(d => parseDateBR(d.dt) >= limitDate);
-                setupMultiSelect('dd-svc-of', [...new Set(dataOfensores.map(d=>d.svc))].sort(), renderOfensores);
-                renderOfensores();
-                document.getElementById('loadingOverlay').classList.remove('active');
-            };
-            document.body.appendChild(script);
-        }
+// Como parseDateAny garante 12:00, getFullYear/Month/Date locais são seguros
+const y = d.getFullYear();
+const m = String(d.getMonth() + 1).padStart(2, '0');
+const day = String(d.getDate()).padStart(2, '0');
+return parseInt(`${y}${m}${day}`);
+}
 
-        function renderOfensores() {
-            // Verifica se há filtro ativo por gráfico
-            const svcsManual = getSelectedValues('dd-svc-of');
-            const nomeVal = document.getElementById('of-search').value.toLowerCase();
-            const dIni = document.getElementById('of-date-ini').value ? new Date(document.getElementById('of-date-ini').value) : null;
-            const dFim = document.getElementById('of-date-fim').value ? new Date(document.getElementById('of-date-fim').value) : null;
+// Helper para normalizar strings (TIPO, Colunas)
+function normalizeString(s) {
+return s ? String(s).trim().toUpperCase() : '';
+}
 
-            let filtered = dataOfensores.filter(d => {
-                // Prioridade para o Toggle do Gráfico
-                if (activeFilterSVC_Ofensores && d.svc !== activeFilterSVC_Ofensores) return false;
-                
-                // Se não houver toggle, usa o filtro manual
-                if (!activeFilterSVC_Ofensores && svcsManual.length > 0 && !svcsManual.includes(d.svc)) return false;
-                
-                if(nomeVal && !d.nome.toLowerCase().includes(nomeVal)) return false;
-                if(dIni || dFim) { const dt = parseDateBR(d.dt); if(dIni && dt < dIni) return false; if(dFim && dt > dFim) return false; }
-                return true;
-            });
+const SHEET_ID = '1OzrdPS7am7FSHOrVlT3qD5NBGm0TE1NERvRVKnFGb90';
+const GID_CHECKLIST = '1226817368';
+const SHEET_NAME_TREINO = 'Consolidado treinamentos';
 
-            document.getElementById('of-total').innerText = filtered.length;
-            document.getElementById('of-pcml-count').innerText = filtered.filter(d=>d.tipo==='PCML').length;
-            document.getElementById('of-tele-count').innerText = filtered.filter(d=>d.tipo==='SCORECARD').length;
+const SHEET_ID_OFENSORES = '1q0G9L8Tu9zI7ziE4zOx0E-ngWgAmqjzqfh16P045PM8';
+const SHEET_NAME_OFENSORES = 'DB_OFENSORES';
 
-            const map = {}; 
-            filtered.forEach(d => {
-                if(!map[d.nome]) map[d.nome] = { nome: d.nome, svc: d.svc, placa: d.placa, count: 0, pcml_secs: 0, infra: {acel:0, fre:0, cur:0, vel:0, cin:0}, hist:[], lastDate: d.dt };
-                const currentDt = parseDateBR(d.dt); const storedDt = parseDateBR(map[d.nome].lastDate); if (currentDt > storedDt) map[d.nome].lastDate = d.dt;
-                map[d.nome].count++; map[d.nome].hist.push(d.dt);
-                if(d.tipo === 'SCORECARD') { map[d.nome].infra.acel += parseFloat(d.ac); map[d.nome].infra.fre += parseFloat(d.fr); map[d.nome].infra.cur += parseFloat(d.cu); map[d.nome].infra.vel += parseFloat(d.ve); map[d.nome].infra.cin += parseFloat(d.cin); }
-                else if (d.tipo === 'PCML') { map[d.nome].pcml_secs += timeToSeconds(d.val); }
-            });
-            const lista = Object.values(map).sort((a,b) => b.count - a.count);
-            document.getElementById('of-reinc-count').innerText = lista.filter(m => m.count > 1).length;
+let dashData = null, chartsCheck = {}, chartsOf = {};
+let dadosTreinoAll = [], dadosTreinoFiltered = [], chartTreinoInst = null, chartTreinoSVCInst = null, treinoLoaded = false;
+let dataOfensores = [], ofensoresLoaded = false;
 
-            // FILA OPERACIONAL (WORK QUEUE) REMOVIDA
-            // A lógica de renderização foi removida para limpar o código e evitar erros de DOM.
+// Variaveis de Estado para Filtros Toggle
+let activeFilterSVC_Ofensores = null;
+let activeFilterSVC_Treino = null;
+let activeFilterCurso_Treino = null;
+let activeChecklistFilter = null;
 
-            // Tabelão Detalhado
-            const tb = document.querySelector('#tbl-ofensores tbody'); tb.innerHTML = '';
-            lista.slice(0, 100).forEach(m => {
-                let pcmlStr = secondsToTimeFormatted(m.pcml_secs);
-                let isCritical = m.infra.vel > 0;
-                let badgeVel = isCritical ? 'class="badge-val risk-critical" title="Gatilho Sistêmico de Risco Crítico"' : 'class="badge-val" style="color:#ccc; opacity:0.4"';
-                let iconVel = isCritical ? '⚠️ ' : '';
-                const recency = getRecencyClass(m.lastDate);
-                const recencyBadge = `<span class="recency-badge ${recency.class}" title="Último evento há ${recency.label}">${recency.label}</span>`;
-                const nameHtml = `<a onclick="openDriverModal('${m.nome}')" class="driver-link">${m.nome}</a>`;
-                tb.innerHTML += `<tr><td>${nameHtml}</td><td>${m.svc}</td><td style="text-align:left;"><span style="font-weight:bold; color:#444;">${m.count}x</span>${recencyBadge}</td><td style="font-weight:bold; color:#e65100;">${pcmlStr}</td><td ${badgeVel}>${iconVel}${m.infra.vel}</td><td class="badge-val">${m.infra.acel}</td><td class="badge-val">${m.infra.fre}</td><td class="badge-val">${m.infra.cur}</td><td class="badge-val">${m.infra.cin}</td></tr>`;
-            });
+// Estado do Modo de Visualização de Ofensores
+let ofensoresViewMode = '3M'; // '3M', 'PERIODO', 'COMPARE'
 
-            // GRÁFICOS
-            let chartData = dataOfensores.filter(d => {
-                if(svcsManual.length > 0 && !svcsManual.includes(d.svc)) return false;
-                if(nomeVal && !d.nome.toLowerCase().includes(nomeVal)) return false;
-                if(dIni || dFim) { const dt = parseDateBR(d.dt); if(dIni && dt < dIni) return false; if(dFim && dt > dFim) return false; }
-                return true;
-            });
-            
-            renderOfensoresCharts(chartData);
-        }
+function mudarAba(aba) {
+try {
+document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+if (aba === 'checklist') {
+document.querySelectorAll('.nav-tab')[0].classList.add('active');
+document.getElementById('abaChecklist').classList.add('active');
+} else if (aba === 'ofensores') {
+document.querySelectorAll('.nav-tab')[1].classList.add('active');
+document.getElementById('abaOfensores').classList.add('active');
+if(!ofensoresLoaded) { loadOfensores(); ofensoresLoaded = true; }
+} else {
+document.querySelectorAll('.nav-tab')[2].classList.add('active');
+document.getElementById('abaTreinamentos').classList.add('active');
+if(!treinoLoaded) { carregarTreinamentos(); treinoLoaded = true; }
+}
+} catch (e) {
+console.error("Erro ao mudar aba:", e);
+}
+}
 
-        function renderOfensoresCharts(rawData) {
-            // Agregação
-            const scoreCounts = {};
-            const pcmlCounts = {};
-            
-            rawData.forEach(d => {
-                if(d.tipo === 'SCORECARD') scoreCounts[d.svc] = (scoreCounts[d.svc]||0) + 1;
-                if(d.tipo === 'PCML') pcmlCounts[d.svc] = (pcmlCounts[d.svc]||0) + 1;
-            });
-            
-            // Render Chart 1: Scorecard
-            const lblScore = Object.keys(scoreCounts).sort((a,b) => scoreCounts[b] - scoreCounts[a]);
-            const valScore = lblScore.map(k => scoreCounts[k]);
-            const colScore = lblScore.map(k => (activeFilterSVC_Ofensores && activeFilterSVC_Ofensores !== k) ? '#e0e0e0' : '#d32f2f');
+window.addEventListener('load', () => { loadChecklist(); setInterval(() => loadChecklist(true), 300000); });
 
-            const ctxScore = document.getElementById('chartOfensoresScoreSVC').getContext('2d');
-            if (chartsOf.scoreSVC) chartsOf.scoreSVC.destroy();
-            chartsOf.scoreSVC = new Chart(ctxScore, {
-                type: 'bar',
-                data: { labels: lblScore, datasets: [{ label: 'Ocorrências', data: valScore, backgroundColor: colScore }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: {display:false},
-                        datalabels: { color: '#444', anchor: 'end', align: 'top', font:{weight:'bold'} } 
-                    },
-                    onClick: (e, el) => {
-                        if(el.length > 0) {
-                            const svc = lblScore[el[0].index];
-                            toggleOfensoresFilter(svc);
-                        }
-                    }
-                }
-            });
+window.onclick = function(event) {
+if (!event.target.matches('.multi-select-btn') && !event.target.matches('.multi-select-btn *')) {
+document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('show'));
+}
+if (event.target == document.getElementById('driverModal')) {
+closeDriverModal();
+}
+}
 
-            // Render Chart 2: PCML
-            const lblPCML = Object.keys(pcmlCounts).sort((a,b) => pcmlCounts[b] - pcmlCounts[a]);
-            const valPCML = lblPCML.map(k => pcmlCounts[k]);
-            const colPCML = lblPCML.map(k => (activeFilterSVC_Ofensores && activeFilterSVC_Ofensores !== k) ? '#e0e0e0' : '#f57c00');
+/* --- LOGICA MODAL PRESCRITIVO & SLA --- */
+function calculateSLA(eventDateStr, slaHours) {
+const eventDate = parseDateAny(eventDateStr);
+// Ajusta base para 08:00 AM do dia do evento para calculo de SLA
+if(eventDate) eventDate.setHours(8, 0, 0, 0);
 
-            const ctxPCML = document.getElementById('chartOfensoresPCMLSVC').getContext('2d');
-            if (chartsOf.pcmlSVC) chartsOf.pcmlSVC.destroy();
-            chartsOf.pcmlSVC = new Chart(ctxPCML, {
-                type: 'bar',
-                data: { labels: lblPCML, datasets: [{ label: 'Ocorrências', data: valPCML, backgroundColor: colPCML }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: {display:false},
-                        datalabels: { color: '#444', anchor: 'end', align: 'top', font:{weight:'bold'} }
-                    },
-                    onClick: (e, el) => {
-                        if(el.length > 0) {
-                            const svc = lblPCML[el[0].index];
-                            toggleOfensoresFilter(svc);
-                        }
-                    }
-                }
-            });
-        }
+const deadline = new Date(eventDate.getTime() + (slaHours * 60 * 60 * 1000));
+const now = new Date();
+const diffMs = deadline - now;
+const diffHrs = Math.ceil(diffMs / (1000 * 60 * 60));
 
-        function toggleOfensoresFilter(svc) {
-            if (activeFilterSVC_Ofensores === svc) {
-                activeFilterSVC_Ofensores = null; // Remove filtro
-            } else {
-                activeFilterSVC_Ofensores = svc; // Aplica filtro
-            }
-            renderOfensores(); // Re-renderiza tudo (listas e cores dos gráficos)
-        }
+if (diffMs < 0) {
+return { status: 'ATRASADO', label: `-${Math.abs(diffHrs)}h (Expirado)`, class: 'expired', sortOrder: 0 };
+} else if (diffHrs <= 4) {
+return { status: 'CRÍTICO', label: `${diffHrs}h Restantes`, class: 'critical', sortOrder: 1 };
+} else {
+return { status: 'NORMAL', label: `${diffHrs}h Restantes`, class: 'normal', sortOrder: 2 };
+}
+}
 
-        /* --- TREINAMENTOS LOGIC --- */
-        function carregarTreinamentos(force=false) {
-            document.getElementById('loadingOverlay').classList.add('active');
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME_TREINO)}&range=A:F&headers=1`;
-            const script = document.createElement('script'); script.src = url;
-            window.google = window.google||{}; window.google.visualization=window.google.visualization||{}; window.google.visualization.Query=window.google.visualization.Query||{};
-            window.google.visualization.Query.setResponse = function(response) {
-                if(response.status==='error'){alert('Erro Treino');return;}
-                const rows = response.table.rows;
-                dadosTreinoAll = rows.slice(1).map(r=>({
-                    nome: r.c[0]?.v || '', id: r.c[1]?.v || '', svc: r.c[2]?.v || '', curso: r.c[3]?.v || '', ultimaRota: r.c[5]?.v || '', status: 'Vencido'
-                })).filter(d => d.nome && d.id);
-                setupMultiSelect('dd-svc', [...new Set(dadosTreinoAll.map(d=>d.svc))].sort(), aplicarFiltrosTreino);
-                setupMultiSelect('dd-curso', [...new Set(dadosTreinoAll.map(d=>d.curso))].sort(), aplicarFiltrosTreino);
-                aplicarFiltrosTreino();
-                document.getElementById('loadingOverlay').classList.remove('active');
-            };
-            document.head.appendChild(script);
-        }
+function determineProtocol(summary, lastEventDate) {
+if (summary.speed > 0) {
+return {
+code: 'P-01', name: 'RISCO CRÍTICO VIDA', severity: 'critical',
+action: 'INTERVENÇÃO IMEDIATA + MEDIDA OPERACIONAL NÍVEL 1',
+reason: 'Gatilho: Excesso de velocidade superior a 20% do limite da via.',
+rule: 'Ref: Norma Operacional 04.2 - Limiar de Tolerância Zero.',
+sla_hours: 4, impact: '📉 -85% Probabilidade de Sinistro (7d)'
+};
+} else if (summary.events > 3) {
+return {
+code: 'P-04', name: 'REINCIDÊNCIA', severity: 'critical',
+action: 'RESTRIÇÃO SISTÊMICA PREVENTIVA',
+reason: 'Gatilho: Reincidência sistêmica acima do limiar (> 3 eventos).',
+rule: 'Ref: Diretriz de Gestão de Consequências.',
+sla_hours: 0, impact: '🛡️ Bloqueio de Risco Operacional'
+};
+} else if ((summary.accel + summary.brake) > 5) {
+return {
+code: 'P-02', name: 'COMPORTAMENTAL', severity: 'warning',
+action: 'RECICLAGEM TÉCNICA (DIREÇÃO DEFENSIVA)',
+reason: 'Gatilho: Padrão de condução fora dos parâmetros de estabilidade.',
+rule: 'Ref: Manual de Boas Práticas - Condução Segura.',
+sla_hours: 24, impact: '📉 Otimização de Score em 40%'
+};
+} else {
+return {
+code: 'P-03', name: 'EFICIÊNCIA', severity: 'info',
+action: 'CHECKLIST DE VEÍCULO E PROTOCOLO DE ECONOMIA',
+reason: 'Gatilho: Desvio de indicadores de eficiência (Motor Ocioso).',
+rule: 'Ref: Meta de Custo Operacional.',
+sla_hours: 48, impact: '💰 Redução de Desperdício'
+};
+}
+}
 
-        function aplicarFiltrosTreino() {
-            const svcs = getSelectedValues('dd-svc'); 
-            const curs = getSelectedValues('dd-curso');
-            
-            // 1. Filtrar dados (mantido para cálculos)
-            dadosTreinoFiltered = dadosTreinoAll.filter(d => {
-                // Lógica de Toggle Chart (SVC)
-                if (activeFilterSVC_Treino && d.svc !== activeFilterSVC_Treino) return false;
-                
-                // Lógica de Toggle Chart (Curso) - NOVO
-                if (activeFilterCurso_Treino && d.curso !== activeFilterCurso_Treino) return false;
+function openDriverModal(driverName) {
+const driverData = dataOfensores.filter(d => d.nome === driverName);
+if(driverData.length === 0) return;
+driverData.sort((a,b) => parseDateAny(b.dt) - parseDateAny(a.dt));
+const lastEvent = driverData[0];
 
-                // Filtros manuais
-                if (!activeFilterSVC_Treino && svcs.length > 0 && !svcs.includes(d.svc)) return false;
-                if (!activeFilterCurso_Treino && curs.length > 0 && !curs.includes(d.curso)) return false;
-                return true;
-            });
+const summary = { pcml_sec: 0, accel: 0, brake: 0, corner: 0, speed: 0, seatbelt: 0, events: 0 };
+driverData.forEach(d => {
+summary.events++;
+const tipo = normalizeString(d.tipo);
+if (tipo === 'PCML') summary.pcml_sec += timeToSeconds(d.val);
+if (tipo === 'SCORECARD') {
+summary.accel += parseNum(d.ac);
+summary.brake += parseNum(d.fr);
+summary.corner += parseNum(d.cu);
+// 🔹 FIX MODAL: Contar ocorrência de velocidade
+if (isSpeedExcess(d.ve)) summary.speed += 1;
+summary.seatbelt += parseNum(d.cin);
+}
+});
 
-            document.getElementById('tkpi-vencidos').innerText = dadosTreinoFiltered.length;
-            document.getElementById('tkpi-total').innerText = dadosTreinoAll.length;
-            
-            // POPULAR TABELA SIMPLES DE TREINAMENTO (ADICIONADO)
-            const tb = document.querySelector('#tabelaTreino tbody');
-            if(tb) {
-                tb.innerHTML = '';
-                // Limitamos a 500 registros para evitar travamento da aba
-                dadosTreinoFiltered.slice(0, 500).forEach(d => {
-                    tb.innerHTML += `<tr>
-                        <td>${d.nome}</td>
-                        <td>${d.svc}</td>
-                        <td>${d.curso}</td>
-                        <td style="color:#c62828;font-weight:bold;">${d.status}</td>
-                        <td>${d.ultimaRota}</td>
-                    </tr>`;
-                });
-                document.getElementById('contadorTreino').innerText = `Mostrando ${Math.min(dadosTreinoFiltered.length, 500)} de ${dadosTreinoFiltered.length} registros`;
-            }
-            
-            // 2. Dados para os Gráficos
-            let chartData = dadosTreinoAll.filter(d => {
-                if (svcs.length > 0 && !svcs.includes(d.svc)) return false;
-                if (curs.length > 0 && !curs.includes(d.curso)) return false;
-                return true;
-            });
+const protocol = determineProtocol(summary, lastEvent.dt);
+const sla = calculateSLA(lastEvent.dt, protocol.sla_hours);
 
-            atualizarGraficosTreino(chartData);
-        }
-        
-        function atualizarGraficosTreino(data) {
-            // Chart 1: Cursos (Mantido e Renomeado)
-            const countsCursos={}; data.forEach(d=>countsCursos[d.curso]=(countsCursos[d.curso]||0)+1);
-            const lbls=Object.keys(countsCursos).sort((a,b)=>countsCursos[b]-countsCursos[a]).slice(0,10), vals=lbls.map(k=>countsCursos[k]);
-            // Cor dinâmica para Curso
-            const colsCurso = lbls.map(k => (activeFilterCurso_Treino && activeFilterCurso_Treino !== k) ? '#e0e0e0' : '#e74c3c');
-            
-            const ctx=document.getElementById('graficoCursosTreino').getContext('2d');
-            if(chartTreinoInst)chartTreinoInst.destroy();
-            chartTreinoInst = new Chart(ctx, { 
-                type:'bar', data:{labels:lbls, datasets:[{label:'Volume de Pendências',data:vals,backgroundColor:colsCurso}]}, 
-                options:{
-                    maintainAspectRatio:false, 
-                    plugins:{legend:{display:false}, datalabels:{color:'#444',anchor:'end',align:'top',font:{weight:'bold'}}},
-                    onClick: (e, el) => {
-                        if(el.length > 0) {
-                            const curso = lbls[el[0].index];
-                            toggleTreinoCursoFilter(curso);
-                        }
-                    }
-                } 
-            });
+const htmlContent = `
+<div class="prescriptive-header ${protocol.severity === 'critical' ? 'critical' : ''}">
+<div class="driver-info">
+<h2>${driverName}</h2>
+<span>SVC: ${lastEvent.svc} | PROTOCOLO: ${protocol.code}</span>
+</div>
+<div class="status-badge">${protocol.severity === 'critical' ? 'RISCO CRÍTICO' : 'ALERTA OPERACIONAL'}</div>
+<button class="close-modal-btn" onclick="closeDriverModal()">&times;</button>
+</div>
+<div class="prescriptive-body">
+<div class="facts-column">
+<div class="section-title">FATORES DE DISPARO (3 MESES)</div>
+<ul class="fact-list">
+<li><span>Velocidade (>8%):</span> <strong>${summary.speed}</strong></li>
+<li><span>Aceleração:</span> <strong>${summary.accel}</strong></li>
+<li><span>Freada:</span> <strong>${summary.brake}</strong></li>
+<li><span>Uso Cinto (Violações):</span> <strong>${summary.seatbelt}</strong></li>
+<li><span>PCML:</span> <strong>${secondsToTimeFormatted(summary.pcml_sec)}</strong></li>
+<li><span>Total Ocorrências:</span> <strong>${summary.events}</strong></li>
+</ul>
+<div class="fact-footer">Última Detecção: ${lastEvent.dt}</div>
+</div>
+<div class="protocol-column">
+<div class="protocol-card ${protocol.severity === 'critical' ? 'p-critical' : ''}">
+<div class="protocol-header"><span>PROTOCOLO SISTÊMICO ATIVO</span><span>${protocol.code}</span></div>
+<div class="mandatory-action">${protocol.action}</div>
+<div class="technical-reason">${protocol.reason}</div>
+<div class="ops-rule">${protocol.rule}</div>
 
-            // Chart 2: Pendências por SVC com Toggle
-            const countsSVC = {}; data.forEach(d => countsSVC[d.svc] = (countsSVC[d.svc]||0)+1);
-            const lblsSVC = Object.keys(countsSVC).sort((a,b) => countsSVC[b] - countsSVC[a]);
-            const valsSVC = lblsSVC.map(k => countsSVC[k]);
-            const colsSVC = lblsSVC.map(k => (activeFilterSVC_Treino && activeFilterSVC_Treino !== k) ? '#CFD8DC' : '#546E7A');
+${summary.seatbelt > 0 ? `
+<div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+<div style="font-size:12px; font-weight:700; color:#d32f2f; margin-bottom:5px;">🚨 ATENÇÃO: CINTO DE SEGURANÇA</div>
+<ul style="font-size:12px; color:#333; list-style:none;">
+<li>• Não utilização: <b>${summary.seatbelt}</b> ocorrências registradas.</li>
+</ul>
+<div style="font-size:11px; font-weight:bold; margin-top:8px; color:#555;">Medidas Recomendadas:</div>
+<ul style="font-size:11px; color:#666; padding-left:15px; margin-top:3px;">
+<li>Orientação imediata sobre uso obrigatório do cinto</li>
+<li>Reforço em treinamento de segurança básica</li>
+<li>Alerta operacional em tempo real para reincidência</li>
+</ul>
+</div>
+` : ''}
 
-            const ctxSVC = document.getElementById('chartTreinoSVC').getContext('2d');
-            if (chartTreinoSVCInst) chartTreinoSVCInst.destroy();
-            chartTreinoSVCInst = new Chart(ctxSVC, {
-                type: 'bar',
-                data: { labels: lblsSVC, datasets: [{ label: 'Pendências', data: valsSVC, backgroundColor: colsSVC }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        datalabels: { color: '#444', anchor: 'end', align: 'top', font:{weight:'bold'} }
-                    },
-                    onClick: (e, el) => {
-                        if(el.length > 0) {
-                            const svc = lblsSVC[el[0].index];
-                            toggleTreinoFilter(svc);
-                        }
-                    }
-                }
-            });
-        }
+<div class="metrics-grid">
+<div class="metric-box">
+<span class="metric-label">SLA DE EXECUÇÃO</span>
+<span class="metric-value ${sla.class}">${sla.label}</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">MITIGAÇÃO PROJETADA</span>
+<span class="metric-value">${protocol.impact}</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="prescriptive-footer">
+<span>ID ÚNICO: ${Math.floor(Math.random()*1000000)} • AUDITORIA DE SISTEMA ATIVA</span>
+</div>
+`;
+document.getElementById('prescriptiveContent').innerHTML = htmlContent;
+document.getElementById('driverModal').classList.add('active');
+}
+function closeDriverModal() { document.getElementById('driverModal').classList.remove('active'); }
 
-        function toggleTreinoFilter(svc) {
-            if (activeFilterSVC_Treino === svc) {
-                activeFilterSVC_Treino = null;
-            } else {
-                activeFilterSVC_Treino = svc;
-            }
-            aplicarFiltrosTreino();
-        }
+/* --- CHECKLIST LOGIC --- */
+function loadChecklist(silent=false) {
+if(!silent) document.getElementById('loadingOverlay').classList.add('active');
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID_CHECKLIST}&headers=1`;
+const script = document.createElement('script'); script.src = url;
+window.google = window.google || {}; window.google.visualization = window.google.visualization || {}; window.google.visualization.Query = window.google.visualization.Query || {};
+window.google.visualization.Query.setResponse = function(response) {
+if(response.status === 'error') { if(!silent) alert('Erro Checklist.'); document.getElementById('loadingOverlay').classList.remove('active'); return; }
+const cols = response.table.cols; const rows = response.table.rows;
+const colMap = {}; cols.forEach((c, i) => { if(c.label) colMap[c.label.trim()] = i; });
+const data = rows.map(r => {
+const rowObj = {}; Object.keys(colMap).forEach(key => { const idx = colMap[key]; rowObj[key] = (r.c[idx]) ? (r.c[idx].f || r.c[idx].v) : ''; }); return rowObj;
+});
+analyzeChecklist(data);
+};
+document.body.appendChild(script);
+}
 
-        function toggleTreinoCursoFilter(curso) {
-            if (activeFilterCurso_Treino === curso) {
-                activeFilterCurso_Treino = null;
-            } else {
-                activeFilterCurso_Treino = curso;
-            }
-            aplicarFiltrosTreino();
-        }
+function analyzeChecklist(data) {
+const now = new Date(); let dIni, dFim;
+if(now.getDate()<=15) { dIni=new Date(now.getFullYear(),now.getMonth(),1); dFim=new Date(now.getFullYear(),now.getMonth(),15,23,59,59); } else { dIni=new Date(now.getFullYear(),now.getMonth(),16); dFim=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59); }
+const grouped = {};
+data.forEach(row => {
+const reg = row.REGIONAL||'N/A', svc = row.SVC||'N/A', placa = row.Placa||'', consta = (row['CONSTA NA VEC']||'').toUpperCase();
+const isNC = consta.includes('NO CONSTA')||consta.includes('NÃO CONSTA');
+const key = reg+'|'+svc;
+if(!grouped[key]) grouped[key]={regional:reg,svc:svc,total:0,nao_consta:0,validos:0,real:0,pends:[],nc_list:[]};
+grouped[key].total++;
+if(isNC) { grouped[key].nao_consta++; grouped[key].nc_list.push(placa); }
+else {
+grouped[key].validos++; let feito = false;
+if(row.REALIZADO) {
+// CheckList pode usar parseDateAny mas com cuidado se tiver horas
+const dt = parseDateAny(row.REALIZADO);
+// Se parseDateAny jogar para 12:00, comparação com dIni (00:00) e dFim (23:59) funciona bem
+if(dt && dt>=dIni && dt<=dFim) feito=true;
+}
+if(feito) grouped[key].real++; else grouped[key].pends.push(placa);
+}
+});
+const arr = Object.values(grouped).map(i=>({...i, faltando:i.validos-i.real, perc:i.validos>0?(i.real/i.validos*100):0}));
+dashData = arr;
 
-        /* --- UTILITARIOS --- */
-        function timeToSeconds(timeStr) { if(!timeStr || typeof timeStr !== 'string') return 0; const parts = timeStr.split(':'); return (+parts[0]) * 3600 + (+parts[1]) * 60 + (+parts[2]); }
-        function secondsToTimeFormatted(secs) { if(!secs) return "00h 00m 00s"; const h = Math.floor(secs / 3600).toString().padStart(2, '0'); const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0'); const s = Math.floor(secs % 60).toString().padStart(2, '0'); return `${h}h ${m}m ${s}s`; }
-        function parseDateBR(dateStr) { if(!dateStr) return new Date(0); const p = dateStr.split('/'); return new Date(p[2], p[1]-1, p[0]); }
-        function getRecencyClass(dateString) { const today = new Date(); const eventDate = parseDateBR(dateString); const diffDays = Math.ceil(Math.abs(today - eventDate) / (1000 * 60 * 60 * 24)); if (diffDays <= 7) return { class: 'recency-urgent', label: '< 7d' }; if (diffDays <= 30) return { class: 'recency-warning', label: '8-30d' }; return { class: 'recency-history', label: '> 30d' }; }
-        function setupMultiSelect(id, arr, callback) { const con = document.getElementById(id); con.innerHTML = `<label class="checkbox-item" onclick="selAll('${id}',true, ${callback.name})"><b>Todos</b></label><label class="checkbox-item" onclick="selAll('${id}',false, ${callback.name})"><b>Limpar</b></label><hr>`+arr.map(i=>`<label class="checkbox-item"><input type="checkbox" value="${i}" onchange="${callback.name}()"> ${i}</label>`).join(''); }
-        function toggleDropdown(id) { document.getElementById(id).classList.toggle("show"); }
-        function selAll(id, chk, cb) { document.querySelectorAll(`#${id} input`).forEach(i=>i.checked=chk); cb(); }
-        function getSelectedValues(id) { return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(c=>c.value); }
-        function sortTableCheck(k){ dashData.sort((a,b)=>(a[k]>b[k])?1:-1); updateCheckUI(dashData); }
-        function exportChecklistExcel(){ if(!dashData)return; const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(dashData),"Checklist"); XLSX.writeFile(wb,"Checklist_Eco.xlsx"); }
-        function exportarTreinoExcel(){ if(dadosTreinoFiltered.length===0)return; const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(dadosTreinoFiltered),"Treinamentos"); XLSX.writeFile(wb,"Treinamentos.xlsx"); }
-        function exportarOfensores() { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dataOfensores), "Ofensores"); XLSX.writeFile(wb, "Relatorio_Ofensores.xlsx"); }
-        function clearChecklistFilters(){ document.getElementById('filterRegional').value='TODOS'; document.getElementById('filterSVC').value='TODOS'; document.getElementById('filterStatus').value='TODOS'; updateCheckUI(dashData); }
-    </script>
+const uniqueSVCs = [...new Set(arr.map(d => (d.svc || '').trim()).filter(Boolean))].sort();
+setupMultiSelect('dd-svc-checklist', uniqueSVCs, triggerChecklistUpdate);
+
+updateCheckUI(arr);
+document.getElementById('loadingOverlay').classList.remove('active');
+}
+
+function triggerChecklistUpdate() {
+if(dashData) updateCheckUI(dashData);
+}
+
+function updateCheckUI(data) {
+let flt = data;
+
+if (activeChecklistFilter) {
+if (activeChecklistFilter.type === 'regional') {
+flt = flt.filter(d => d.regional === activeChecklistFilter.value);
+} else if (activeChecklistFilter.type === 'svc') {
+flt = flt.filter(d => d.svc === activeChecklistFilter.value);
+} else if (activeChecklistFilter.type === 'status') {
+if (activeChecklistFilter.value === 'Excelente') flt = flt.filter(d => d.perc >= 80);
+else if (activeChecklistFilter.value === 'Atenção') flt = flt.filter(d => d.perc >= 50 && d.perc < 80);
+else if (activeChecklistFilter.value === 'Crítico') flt = flt.filter(d => d.perc < 50);
+}
+}
+
+const reg = document.getElementById('filterRegional').value;
+const sts = document.getElementById('filterStatus').value;
+
+const svcs = getSelectedValues('dd-svc-checklist');
+const btnSvc = document.querySelector('#dd-svc-checklist').parentNode.querySelector('.multi-select-btn');
+if(svcs.length > 0) {
+flt = flt.filter(d => svcs.includes(d.svc));
+btnSvc.innerHTML = `SVC: ${svcs.length} Selecionados <i class="fas fa-chevron-down"></i>`;
+} else {
+btnSvc.innerHTML = `SVC: Todos <i class="fas fa-chevron-down"></i>`;
+}
+
+if(reg!=='TODOS') flt=flt.filter(d=>d.regional===reg);
+if(sts!=='TODOS') { if(sts==='verde') flt=flt.filter(d=>d.perc>=80); else if(sts==='amarelo') flt=flt.filter(d=>d.perc>=50&&d.perc<80); else if(sts==='vermelho') flt=flt.filter(d=>d.perc<50); else if(sts==='PENDENTE') flt=flt.filter(d=>d.faltando>0); }
+
+const tot=flt.reduce((s,i)=>s+i.validos,0), rea=flt.reduce((s,i)=>s+i.real,0);
+document.getElementById('kpiTotal').innerText = tot; document.getElementById('kpiRealizados').innerText = rea; document.getElementById('kpiFaltando').innerText = tot-rea; document.getElementById('kpiTaxa').innerText = tot>0?(rea/tot*100).toFixed(1)+'%':'0%';
+if(document.getElementById('filterRegional').options.length===1) { [...new Set(data.map(d=>d.regional))].sort().forEach(r=>document.getElementById('filterRegional').add(new Option(r,r))); }
+renderChecklistCharts(flt);
+const tb = document.getElementById('tableBody'); tb.innerHTML='';
+flt.sort((a,b)=>b.perc-a.perc).forEach(i=>{ let c='#ffcdd2'; if(i.perc>=80)c='#c8e6c9'; else if(i.perc>=50)c='#fff9c4'; tb.innerHTML+=`<tr><td>${i.regional}</td><td><b>${i.svc}</b></td><td>${i.total}</td><td style="color:#666">${i.nao_consta}</td><td>${i.real}</td><td style="color:${i.faltando>0?'red':'green'}">${i.faltando}</td><td style="background:${c}">${i.perc.toFixed(1)}%</td></tr>`; });
+const pg = document.getElementById('pendentesGrid'); pg.innerHTML='';
+const pends = flt.filter(i=>i.faltando>0);
+document.getElementById('pendentesTitle').innerText = `🚨 Pendentes (${pends.reduce((s,i)=>s+i.pends.length,0)})`;
+pends.forEach(i=>{ let html=`<div class="pendente-card"><strong>${i.svc}</strong><br>`; i.pends.forEach(p=>html+=`<span class="placa-badge">${p}</span>`); i.nc_list.forEach(p=>html+=`<span class="placa-badge placa-nao-consta">${p}</span>`); pg.innerHTML+=html+'</div>'; });
+}
+
+function handleChecklistClick(evt, element, chartInstance, type) {
+if (element.length > 0) {
+const idx = element[0].index;
+const value = chartInstance.data.labels[idx];
+
+if (activeChecklistFilter && activeChecklistFilter.type === type && activeChecklistFilter.value === value) {
+activeChecklistFilter = null;
+} else {
+activeChecklistFilter = { type: type, value: value };
+}
+updateCheckUI(dashData);
+}
+}
+
+function renderChecklistCharts(data) {
+const getColor = (type, value, defaultColor) => {
+if (!activeChecklistFilter) return defaultColor;
+if (activeChecklistFilter.type !== type) return '#e0e0e0';
+return activeChecklistFilter.value === value ? defaultColor : '#e0e0e0';
+};
+
+const regMap={}; data.forEach(d=>{ if(!regMap[d.regional])regMap[d.regional]={t:0,r:0}; regMap[d.regional].t+=d.validos; regMap[d.regional].r+=d.real; });
+const lbls=Object.keys(regMap).sort(), vals=lbls.map(k=>regMap[k].t>0?(regMap[k].r/regMap[k].t*100):0);
+const regColors = lbls.map(l => getColor('regional', l, '#7CB342'));
+
+if(chartsCheck.reg)chartsCheck.reg.destroy();
+chartsCheck.reg = new Chart(document.getElementById('chartRegional'), {
+type:'bar',
+data:{labels:lbls, datasets:[{label:'% Real',data:vals,backgroundColor:regColors}]},
+options:{
+maintainAspectRatio:false, scales:{y:{max:100}},
+plugins:{legend:{display:false}, datalabels:{color:'white',formatter:v=>v.toFixed(0)+'%'}},
+onClick: (e, el) => handleChecklistClick(e, el, chartsCheck.reg, 'regional')
+}
+});
+
+let sVerde=0, sAmarelo=0, sVermelho=0; data.forEach(d=>{ if(d.perc>=80)sVerde++; else if(d.perc>=50)sAmarelo++; else sVermelho++; });
+const stLbls = ['Excelente','Atenção','Crítico'];
+const stColors = stLbls.map((l, i) => getColor('status', l, ['#4caf50','#fbc02d','#f44336'][i]));
+
+if(chartsCheck.status)chartsCheck.status.destroy();
+chartsCheck.status = new Chart(document.getElementById('chartStatus'), {
+type:'doughnut',
+data:{labels:stLbls, datasets:[{data:[sVerde,sAmarelo,sVermelho], backgroundColor:stColors}]},
+options:{
+maintainAspectRatio:false,
+plugins:{datalabels:{color:'white',font:{weight:'bold'}}},
+onClick: (e, el) => handleChecklistClick(e, el, chartsCheck.status, 'status')
+}
+});
+
+const sorted = [...data].sort((a,b)=>b.perc-a.perc).slice(0,10);
+const topLbls = sorted.map(d=>d.svc);
+const topColors = topLbls.map(l => getColor('svc', l, '#2e7d32'));
+
+if(chartsCheck.top)chartsCheck.top.destroy();
+chartsCheck.top = new Chart(document.getElementById('chartTop'), {
+type:'bar',
+data:{labels:topLbls, datasets:[{label:'% Real',data:sorted.map(d=>d.perc),backgroundColor:topColors}]},
+options:{
+indexAxis:'y', maintainAspectRatio:false,
+plugins:{legend:{display:false}, datalabels:{color:'white',formatter:v=>v.toFixed(0)+'%'}},
+onClick: (e, el) => handleChecklistClick(e, el, chartsCheck.top, 'svc')
+}
+});
+
+const bottom = [...data].sort((a,b)=>a.perc-b.perc).slice(0,10);
+const botLbls = bottom.map(d=>d.svc);
+const botColors = botLbls.map(l => getColor('svc', l, '#c62828'));
+
+if(chartsCheck.bot)chartsCheck.bot.destroy();
+chartsCheck.bot = new Chart(document.getElementById('chartBottom'), {
+type:'bar',
+data:{labels:botLbls, datasets:[{label:'% Menor Adesão', data:bottom.map(d=> (100 - d.perc).toFixed(1) ), backgroundColor:botColors}]},
+options:{
+indexAxis:'y', maintainAspectRatio:false,
+plugins:{legend:{display:false}, datalabels:{color:'white',formatter:v=>v+'%'}},
+onClick: (e, el) => handleChecklistClick(e, el, chartsCheck.bot, 'svc')
+}
+});
+}
+
+/* --- OFENSORES LOGIC --- */
+function loadOfensores(force=false) {
+document.getElementById('loadingOverlay').classList.add('active');
+
+updateOfensoresPeriodIndicator();
+
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID_OFENSORES}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME_OFENSORES}`;
+const script = document.createElement('script'); script.src = url;
+window.google = window.google || {}; window.google.visualization = window.google.visualization || {}; window.google.visualization.Query = window.google.visualization.Query || {};
+window.google.visualization.Query.setResponse = function(res) {
+if(res.status === 'error') { alert('Erro Ofensores.'); document.getElementById('loadingOverlay').classList.remove('active'); return; }
+const cols = res.table.cols;
+const rows = res.table.rows;
+
+// 🔹 FIX: MAPEAMENTO DINÂMICO DE COLUNAS COM ALIAS
+const colMap = {};
+cols.forEach((c, i) => {
+if(c.label) {
+let label = c.label.trim().toUpperCase();
+// Fallback para variações comuns
+if(label === 'ACELERAÇÃO' || label === 'ACELERACAO') label = 'ACEL';
+if(label === 'FREIADA' || label === 'FREADA') label = 'FRE';
+colMap[label] = i;
+}
+});
+
+let rawData = rows.map(r => {
+// Helper para buscar com segurança (f ?? v)
+const getV = (key) => {
+let idx = -1;
+// Alias Map
+if (key === 'ACEL') idx = colMap['ACEL'] ?? colMap['ACELERACAO'] ?? colMap['ACELERAÇÃO'] ?? 8;
+else if (key === 'FRE') idx = colMap['FRE'] ?? colMap['FREADA'] ?? colMap['FREIADA'] ?? 9;
+else if (key === 'VEL') idx = colMap['VELOCIDADE'] ?? colMap['VEL'] ?? 11;
+else if (key === 'CINTO') idx = colMap['CINTO'] ?? 12;
+else if (key === 'CURVA') idx = colMap['CURVA'] ?? 10;
+else idx = colMap[key];
+
+// Fallback de índice fixo caso colMap falhe
+if (idx === undefined) {
+if(key === 'DATA') idx = 0;
+else if(key === 'MOTORISTA') idx = 1;
+else if(key === 'SVC') idx = 2;
+else if(key === 'REGIONAL') idx = 3;
+else if(key === 'PLACA') idx = 4;
+else if(key === 'TIPO') idx = 5;
+else if(key === 'VALOR') idx = 6;
+}
+
+// Prioridade para valor formatado se for texto, valor bruto se numérico
+if (r.c[idx]) {
+return r.c[idx].v !== undefined ? r.c[idx].v : (r.c[idx].f || '');
+}
+return '';
+};
+
+return {
+dt: getV('DATA'),
+nome: getV('MOTORISTA'),
+svc: getV('SVC'),
+reg: getV('REGIONAL'),
+placa: getV('PLACA'),
+tipo: getV('TIPO'),
+val: getV('VALOR_PRINCIPAL') || getV('VALOR'), // Tenta header especifico ou genérico
+ac: getV('ACEL'),
+fr: getV('FRE'),
+cu: getV('CURVA'),
+ve: getV('VEL'),
+cin: getV('CINTO')
+};
+});
+
+const limitDate = new Date(); limitDate.setMonth(limitDate.getMonth() - 3);
+// Importante: parseDateAny agora retorna 12:00, então comparações funcionam
+dataOfensores = rawData.filter(d => {
+const dt = parseDateAny(d.dt);
+return dt && dt >= limitDate;
+});
+
+setupMultiSelect('dd-svc-of', [...new Set(dataOfensores.map(d=>d.svc))].sort(), renderOfensores);
+
+renderOfensores();
+document.getElementById('loadingOverlay').classList.remove('active');
+};
+document.body.appendChild(script);
+}
+
+function updateOfensoresPeriodIndicator() {
+const end = new Date();
+const start = new Date();
+start.setMonth(start.getMonth() - 3);
+
+const fmt = (d) => d.toLocaleDateString('pt-BR');
+document.getElementById('ofensores-period-badge').innerHTML = `📅 <b>Período Base (3 Meses):</b> ${fmt(start)} até ${fmt(end)}`;
+}
+
+// Função para trocar modo de visualização
+function changeViewMode(mode) {
+ofensoresViewMode = mode;
+document.querySelectorAll('.view-mode-btn').forEach(btn => btn.classList.remove('active'));
+if(mode === '3M') document.getElementById('btnMode3M').classList.add('active');
+if(mode === 'PERIODO') document.getElementById('btnModePeriodo').classList.add('active');
+if(mode === 'COMPARE') document.getElementById('btnModeCompare').classList.add('active');
+renderOfensores();
+}
+
+// 🔹 Função Helper para Agregação de Dados CORRIGIDA
+function aggregateDrivers(dataSet) {
+const map = {};
+dataSet.forEach(d => {
+if(!map[d.nome]) map[d.nome] = { nome: d.nome, svc: d.svc, placa: d.placa, count: 0, pcml_secs: 0, infra: {acel:0, fre:0, cur:0, vel:0, cin:0}, hist:[], lastDate: d.dt };
+
+const currentDt = parseDateAny(d.dt); const storedDt = parseDateAny(map[d.nome].lastDate); if (currentDt > storedDt) map[d.nome].lastDate = d.dt;
+map[d.nome].count++; map[d.nome].hist.push(d.dt);
+
+const tipo = normalizeString(d.tipo);
+
+if(tipo === 'SCORECARD') {
+// Soma de eventos
+map[d.nome].infra.acel += parseNum(d.ac);
+map[d.nome].infra.fre += parseNum(d.fr);
+map[d.nome].infra.cur += parseNum(d.cu);
+map[d.nome].infra.cin += parseNum(d.cin);
+
+// 🔹 FIX: VELOCIDADE É CONTADOR DE EVENTOS > 8%
+if (isSpeedExcess(d.ve)) {
+map[d.nome].infra.vel += 1;
+}
+}
+else if (tipo === 'PCML') { map[d.nome].pcml_secs += timeToSeconds(d.val); }
+});
+return map;
+}
+
+function renderOfensores() {
+if(!document.querySelector('.view-mode-btn.active')) changeViewMode(ofensoresViewMode);
+
+// 1. Definição de Datas (Usando chaves YYYYMMDD Inteiros para segurança absoluta)
+const inputIni = document.getElementById('of-date-ini').value;
+const inputFim = document.getElementById('of-date-fim').value;
+
+let iniKey, fimKey;
+
+if (inputIni && inputFim) {
+// input HTML5 retorna "yyyy-mm-dd". parseDateAny cuida de adicionar T12:00:00
+iniKey = ymdKey(parseDateAny(inputIni));
+fimKey = ymdKey(parseDateAny(inputFim));
+} else {
+// Default: Últimos 7 dias
+const hoje = new Date();
+const passado = new Date();
+passado.setDate(hoje.getDate() - 7);
+
+iniKey = ymdKey(passado);
+fimKey = ymdKey(hoje);
+}
+
+// 2. Filtros Comuns (Nome e SVC e ToggleChart) aplicados à Base 3 Meses PRIMEIRO
+const svcsManual = getSelectedValues('dd-svc-of');
+const nomeVal = document.getElementById('of-search').value.toLowerCase();
+
+// Dataset Base (3 Meses filtrado por Nome/SVC/Toggle)
+let baseData3M = dataOfensores.filter(d => {
+// Filtro Toggle Grafico (Prioridade)
+if (activeFilterSVC_Ofensores && d.svc !== activeFilterSVC_Ofensores) return false;
+// Filtro Manual (Multi-select)
+if (!activeFilterSVC_Ofensores && svcsManual.length > 0 && !svcsManual.includes(d.svc)) return false;
+// Filtro Nome
+if (nomeVal && !d.nome.toLowerCase().includes(nomeVal)) return false;
+return true;
+});
+
+// Dataset Período (Correção: Comparação Numérica)
+let periodData = baseData3M.filter(d => {
+const k = ymdKey(d.dt); // Converte data da linha para YYYYMMDD (Int)
+// Debug silencioso de chaves invalidas se precisar
+if(!k) return false;
+return k >= iniKey && k <= fimKey;
+});
+
+// 3. Decidir qual dataset usar para KPIs e Gráficos
+let activeDataset = (ofensoresViewMode === '3M') ? baseData3M : periodData;
+
+// KPIs
+document.getElementById('of-total').innerText = activeDataset.length;
+const activePCML = activeDataset.filter(d=>normalizeString(d.tipo)==='PCML').length;
+document.getElementById('of-pcml-count').innerText = activePCML;
+
+// KPI INFRAÇÕES DE CONDUÇÃO (Soma Real do Dataset Ativo)
+const infraSum = activeDataset
+.filter(d => normalizeString(d.tipo) === 'SCORECARD')
+.reduce((acc, d) => {
+let sum = 0;
+sum += parseNum(d.ac);
+sum += parseNum(d.fr);
+sum += parseNum(d.cu);
+sum += parseNum(d.cin);
+if(isSpeedExcess(d.ve)) sum += 1;
+return acc + sum;
+}, 0);
+document.getElementById('of-tele-count').innerText = infraSum;
+
+const tempMap = aggregateDrivers(activeDataset);
+document.getElementById('of-reinc-count').innerText = Object.values(tempMap).filter(m => m.count > 1).length;
+
+renderOfensoresCharts(activeDataset);
+
+// 4. Renderizar Tabela baseada no MODO
+const thead = document.querySelector('#tbl-ofensores thead');
+const tbody = document.querySelector('#tbl-ofensores tbody');
+tbody.innerHTML = '';
+thead.innerHTML = '';
+
+const map3M = aggregateDrivers(baseData3M);
+const mapPeriod = aggregateDrivers(periodData);
+
+if (ofensoresViewMode === '3M') {
+thead.innerHTML = `
+<tr style="background:#444; color:white;">
+<th>Motorista</th>
+<th>SVC</th>
+<th>Recorrência e Recência</th>
+<th>Tempo PCML Total</th>
+<th style="color:#ff5252; border-bottom: 3px solid red; font-weight:900;">VELOCIDADE</th>
+<th>Aceleração</th>
+<th>Freada</th>
+<th>Curva</th>
+<th>Cinto</th>
+</tr>`;
+
+const lista = Object.values(map3M).sort((a,b) => b.count - a.count);
+
+lista.slice(0, 100).forEach(m => {
+let pcmlStr = secondsToTimeFormatted(m.pcml_secs);
+let isCritical = m.infra.vel > 0;
+let badgeVel = isCritical ? 'class="badge-val risk-critical" title="Gatilho Sistêmico de Risco Crítico"' : 'class="badge-val" style="color:#ccc; opacity:0.4"';
+let iconVel = isCritical ? '⚠️ ' : '';
+const recency = getRecencyClass(m.lastDate);
+const recencyBadge = `<span class="recency-badge ${recency.class}" title="Último evento há ${recency.label}">${recency.label}</span>`;
+const nameHtml = `<a onclick="openDriverModal('${m.nome}')" class="driver-link">${m.nome}</a>`;
+
+tbody.innerHTML += `<tr>
+<td>${nameHtml}</td>
+<td>${m.svc}</td>
+<td style="text-align:left;"><span style="font-weight:bold; color:#444;">${m.count}x</span>${recencyBadge}</td>
+<td style="font-weight:bold; color:#e65100;">${pcmlStr}</td>
+<td ${badgeVel}>${iconVel}${m.infra.vel}</td>
+<td class="badge-val">${m.infra.acel}</td>
+<td class="badge-val">${m.infra.fre}</td>
+<td class="badge-val">${m.infra.cur}</td>
+<td class="badge-val">${m.infra.cin}</td>
+</tr>`;
+});
+
+} else if (ofensoresViewMode === 'PERIODO') {
+thead.innerHTML = `
+<tr style="background:#f57c00; color:white;">
+<th>Motorista</th>
+<th>SVC</th>
+<th>Ocorrências (Período)</th>
+<th>PCML (Período)</th>
+<th>Velocidade (>8%)</th>
+<th>Aceleração</th>
+<th>Freada</th>
+<th>Curva</th>
+<th>Cinto</th>
+</tr>`;
+
+// CORREÇÃO CRÍTICA: USAR mapPeriod para a tabela de PERÍODO
+const lista = Object.values(mapPeriod).sort((a,b) => b.count - a.count);
+
+lista.slice(0, 100).forEach(m => {
+let pcmlStr = secondsToTimeFormatted(m.pcml_secs);
+const nameHtml = `<a onclick="openDriverModal('${m.nome}')" class="driver-link">${m.nome}</a>`;
+
+tbody.innerHTML += `<tr>
+<td>${nameHtml}</td>
+<td>${m.svc}</td>
+<td style="font-weight:bold;">${m.count}</td>
+<td>${pcmlStr}</td>
+<td style="font-weight:bold; color:${m.infra.vel>0?'red':'inherit'}">${m.infra.vel}</td>
+<td>${m.infra.acel}</td>
+<td>${m.infra.fre}</td>
+<td>${m.infra.cur}</td>
+<td>${m.infra.cin}</td>
+</tr>`;
+});
+
+} else if (ofensoresViewMode === 'COMPARE') {
+thead.innerHTML = `
+<tr>
+<th style="background:#333;">Motorista</th>
+<th style="background:#333;">SVC</th>
+
+<th class="header-periodo separator-border">Ocorr. (P)</th>
+<th class="header-periodo">PCML (P)</th>
+<th class="header-periodo">Vel (P)</th>
+<th class="header-periodo separator-border">Total Infra (P)</th>
+
+<th class="header-3m">Ocorr. (3M)</th>
+<th class="header-3m">PCML (3M)</th>
+<th class="header-3m">Vel (3M)</th>
+<th class="header-3m">Total Infra (3M)</th>
+</tr>`;
+
+const lista = Object.values(mapPeriod).sort((a,b) => b.count - a.count);
+
+lista.slice(0, 100).forEach(m => {
+const hist = map3M[m.nome] || { count: 0, pcml_secs: 0, infra: { vel: 0, acel:0, fre:0, cur:0, cin:0 } };
+
+const totalInfraP = m.infra.vel + m.infra.acel + m.infra.fre + m.infra.cur + m.infra.cin;
+const totalInfra3M = hist.infra.vel + hist.infra.acel + hist.infra.fre + hist.infra.cur + hist.infra.cin;
+
+let pcmlP = secondsToTimeFormatted(m.pcml_secs);
+let pcml3M = secondsToTimeFormatted(hist.pcml_secs);
+const nameHtml = `<a onclick="openDriverModal('${m.nome}')" class="driver-link">${m.nome}</a>`;
+
+tbody.innerHTML += `<tr>
+<td>${nameHtml}</td>
+<td>${m.svc}</td>
+
+<td class="separator-border" style="font-weight:bold; background:#fff3e0;">${m.count}</td>
+<td style="background:#fff3e0;">${pcmlP}</td>
+<td style="background:#fff3e0; color:${m.infra.vel>0?'red':'inherit'}">${m.infra.vel}</td>
+<td class="separator-border" style="background:#fff3e0;">${totalInfraP}</td>
+
+<td style="background:#f5f5f5;">${hist.count}</td>
+<td style="background:#f5f5f5;">${pcml3M}</td>
+<td style="background:#f5f5f5; font-weight:bold;">${hist.infra.vel}</td>
+<td style="background:#f5f5f5;">${totalInfra3M}</td>
+</tr>`;
+});
+}
+}
+
+function renderOfensoresCharts(rawData) {
+const scoreCounts = {};
+const pcmlCounts = {};
+
+rawData.forEach(d => {
+const tipo = normalizeString(d.tipo);
+if(tipo === 'SCORECARD') scoreCounts[d.svc] = (scoreCounts[d.svc]||0) + 1;
+if(tipo === 'PCML') pcmlCounts[d.svc] = (pcmlCounts[d.svc]||0) + 1;
+});
+
+const lblScore = Object.keys(scoreCounts).sort((a,b) => scoreCounts[b] - scoreCounts[a]);
+const valScore = lblScore.map(k => scoreCounts[k]);
+const colScore = lblScore.map(k => (activeFilterSVC_Ofensores && activeFilterSVC_Ofensores !== k) ? '#e0e0e0' : '#d32f2f');
+
+const ctxScore = document.getElementById('chartOfensoresScoreSVC').getContext('2d');
+if (chartsOf.scoreSVC) chartsOf.scoreSVC.destroy();
+chartsOf.scoreSVC = new Chart(ctxScore, {
+type: 'bar',
+data: { labels: lblScore, datasets: [{ label: 'Ocorrências', data: valScore, backgroundColor: colScore }] },
+options: {
+responsive: true, maintainAspectRatio: false,
+plugins: {
+legend: {display:false},
+datalabels: { color: '#444', anchor: 'end', align: 'top', font:{weight:'bold'} }
+},
+onClick: (e, el) => {
+if(el.length > 0) {
+const svc = lblScore[el[0].index];
+toggleOfensoresFilter(svc);
+}
+}
+}
+});
+
+const lblPCML = Object.keys(pcmlCounts).sort((a,b) => pcmlCounts[b] - pcmlCounts[a]);
+const valPCML = lblPCML.map(k => pcmlCounts[k]);
+const colPCML = lblPCML.map(k => (activeFilterSVC_Ofensores && activeFilterSVC_Ofensores !== k) ? '#e0e0e0' : '#f57c00');
+
+const ctxPCML = document.getElementById('chartOfensoresPCMLSVC').getContext('2d');
+if (chartsOf.pcmlSVC) chartsOf.pcmlSVC.destroy();
+chartsOf.pcmlSVC = new Chart(ctxPCML, {
+type: 'bar',
+data: { labels: lblPCML, datasets: [{ label: 'Ocorrências', data: valPCML, backgroundColor: colPCML }] },
+options: {
+responsive: true, maintainAspectRatio: false,
+plugins: {
+legend: {display:false},
+datalabels: { color: '#444', anchor: 'end', align: 'top', font:{weight:'bold'} }
+},
+onClick: (e, el) => {
+if(el.length > 0) {
+const svc = lblPCML[el[0].index];
+toggleOfensoresFilter(svc);
+}
+}
+}
+});
+}
+
+function toggleOfensoresFilter(svc) {
+if (activeFilterSVC_Ofensores === svc) {
+activeFilterSVC_Ofensores = null;
+} else {
+activeFilterSVC_Ofensores = svc;
+}
+renderOfensores();
+}
+
+/* --- TREINAMENTOS LOGIC --- */
+function carregarTreinamentos(force=false) {
+document.getElementById('loadingOverlay').classList.add('active');
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME_TREINO)}&range=A:F&headers=1`;
+const script = document.createElement('script'); script.src = url;
+window.google = window.google||{}; window.google.visualization=window.google.visualization||{}; window.google.visualization.Query=window.google.visualization.Query||{};
+window.google.visualization.Query.setResponse = function(response) {
+if(response.status==='error'){alert('Erro Treino');return;}
+const rows = response.table.rows;
+dadosTreinoAll = rows.slice(1).map(r=>({
+nome: r.c[0]?.v || '', id: r.c[1]?.v || '', svc: r.c[2]?.v || '', curso: r.c[3]?.v || '', ultimaRota: r.c[5]?.v || '', status: 'Vencido'
+})).filter(d => d.nome && d.id);
+setupMultiSelect('dd-svc', [...new Set(dadosTreinoAll.map(d=>d.svc))].sort(), aplicarFiltrosTreino);
+setupMultiSelect('dd-curso', [...new Set(dadosTreinoAll.map(d=>d.curso))].sort(), aplicarFiltrosTreino);
+aplicarFiltrosTreino();
+document.getElementById('loadingOverlay').classList.remove('active');
+};
+document.head.appendChild(script);
+}
+
+function aplicarFiltrosTreino() {
+const svcs = getSelectedValues('dd-svc');
+const curs = getSelectedValues('dd-curso');
+
+dadosTreinoFiltered = dadosTreinoAll.filter(d => {
+if (activeFilterSVC_Treino && d.svc !== activeFilterSVC_Treino) return false;
+if (activeFilterCurso_Treino && d.curso !== activeFilterCurso_Treino) return false;
+if (!activeFilterSVC_Treino && svcs.length > 0 && !svcs.includes(d.svc)) return false;
+if (!activeFilterCurso_Treino && curs.length > 0 && !curs.includes(d.curso)) return false;
+return true;
+});
+
+document.getElementById('tkpi-vencidos').innerText = dadosTreinoFiltered.length;
+document.getElementById('tkpi-total').innerText = dadosTreinoAll.length;
+
+const tb = document.querySelector('#tabelaTreino tbody');
+if(tb) {
+tb.innerHTML = '';
+dadosTreinoFiltered.slice(0, 500).forEach(d => {
+tb.innerHTML += `<tr>
+<td>${d.nome}</td>
+<td>${d.svc}</td>
+<td>${d.curso}</td>
+<td style="color:#c62828;font-weight:bold;">${d.status}</td>
+<td>${d.ultimaRota}</td>
+</tr>`;
+});
+document.getElementById('contadorTreino').innerText = `Mostrando ${Math.min(dadosTreinoFiltered.length, 500)} de ${dadosTreinoFiltered.length} registros`;
+}
+
+let chartData = dadosTreinoAll.filter(d => {
+if (svcs.length > 0 && !svcs.includes(d.svc)) return false;
+if (curs.length > 0 && !curs.includes(d.curso)) return false;
+return true;
+});
+
+atualizarGraficosTreino(chartData);
+}
+
+function atualizarGraficosTreino(data) {
+const countsCursos={}; data.forEach(d=>countsCursos[d.curso]=(countsCursos[d.curso]||0)+1);
+const lbls=Object.keys(countsCursos).sort((a,b)=>countsCursos[b]-countsCursos[a]).slice(0,10), vals=lbls.map(k=>countsCursos[k]);
+
+const colsCurso = lbls.map(k => (activeFilterCurso_Treino && activeFilterCurso_Treino !== k) ? '#e0e0e0' : '#e74c3c');
+
+const ctx=document.getElementById('graficoCursosTreino').getContext('2d');
+if(chartTreinoInst)chartTreinoInst.destroy();
+chartTreinoInst = new Chart(ctx, {
+type:'bar', data:{labels:lbls, datasets:[{label:'Volume de Pendências',data:vals,backgroundColor:colsCurso}]},
+options:{
+maintainAspectRatio:false,
+plugins:{legend:{display:false}, datalabels:{color:'#444',anchor:'end',align:'top',font:{weight:'bold'}}},
+onClick: (e, el) => {
+if(el.length > 0) {
+const curso = lbls[el[0].index];
+toggleTreinoCursoFilter(curso);
+}
+}
+}
+});
+
+const countsSVC = {}; data.forEach(d => countsSVC[d.svc] = (countsSVC[d.svc]||0)+1);
+const lblsSVC = Object.keys(countsSVC).sort((a,b) => countsSVC[b] - countsSVC[a]);
+const valsSVC = lblsSVC.map(k => countsSVC[k]);
+const colsSVC = lblsSVC.map(k => (activeFilterSVC_Treino && activeFilterSVC_Treino !== k) ? '#CFD8DC' : '#546E7A');
+
+const ctxSVC = document.getElementById('chartTreinoSVC').getContext('2d');
+if (chartTreinoSVCInst) chartTreinoSVCInst.destroy();
+chartTreinoSVCInst = new Chart(ctxSVC, {
+type: 'bar',
+data: { labels: lblsSVC, datasets: [{ label: 'Pendências', data: valsSVC, backgroundColor: colsSVC }] },
+options: {
+responsive: true, maintainAspectRatio: false,
+plugins: {
+legend: { display: false },
+datalabels: { color: '#444', anchor: 'end', align: 'top', font:{weight:'bold'} }
+},
+onClick: (e, el) => {
+if(el.length > 0) {
+const svc = lblsSVC[el[0].index];
+toggleTreinoFilter(svc);
+}
+}
+}
+});
+}
+
+function toggleTreinoFilter(svc) {
+if (activeFilterSVC_Treino === svc) {
+activeFilterSVC_Treino = null;
+} else {
+activeFilterSVC_Treino = svc;
+}
+aplicarFiltrosTreino();
+}
+
+function toggleTreinoCursoFilter(curso) {
+if (activeFilterCurso_Treino === curso) {
+activeFilterCurso_Treino = null;
+} else {
+activeFilterCurso_Treino = curso;
+}
+aplicarFiltrosTreino();
+}
+
+/* --- UTILITARIOS --- */
+function timeToSeconds(timeStr) { if(!timeStr || typeof timeStr !== 'string') return 0; const parts = timeStr.split(':'); return (+parts[0]) * 3600 + (+parts[1]) * 60 + (+parts[2]); }
+function secondsToTimeFormatted(secs) { if(!secs) return "00h 00m 00s"; const h = Math.floor(secs / 3600).toString().padStart(2, '0'); const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0'); const s = Math.floor(secs % 60).toString().padStart(2, '0'); return `${h}h ${m}m ${s}s`; }
+function getRecencyClass(dateString) { const today = new Date(); const eventDate = parseDateAny(dateString); const diffDays = Math.ceil(Math.abs(today - eventDate) / (1000 * 60 * 60 * 24)); if (diffDays <= 7) return { class: 'recency-urgent', label: '< 7d' }; if (diffDays <= 30) return { class: 'recency-warning', label: '8-30d' }; return { class: 'recency-history', label: '> 30d' }; }
+function setupMultiSelect(id, arr, callback) { const con = document.getElementById(id); con.innerHTML = `<label class="checkbox-item" onclick="selAll('${id}',true, ${callback.name})"><b>Todos</b></label><label class="checkbox-item" onclick="selAll('${id}',false, ${callback.name})"><b>Limpar</b></label><hr>`+arr.map(i=>`<label class="checkbox-item"><input type="checkbox" value="${i}" onchange="${callback.name}()"> ${i}</label>`).join(''); }
+function toggleDropdown(id) { document.getElementById(id).classList.toggle("show"); }
+function selAll(id, chk, cb) { document.querySelectorAll(`#${id} input`).forEach(i=>i.checked=chk); cb(); }
+function getSelectedValues(id) { return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(c=>c.value); }
+function sortTableCheck(k){ dashData.sort((a,b)=>(a[k]>b[k])?1:-1); updateCheckUI(dashData); }
+function exportChecklistExcel(){ if(!dashData)return; const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(dashData),"Checklist"); XLSX.writeFile(wb,"Checklist_Eco.xlsx"); }
+function exportarTreinoExcel(){ if(dadosTreinoFiltered.length===0)return; const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(dadosTreinoFiltered),"Treinamentos"); XLSX.writeFile(wb,"Treinamentos.xlsx"); }
+function exportarOfensores() { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dataOfensores), "Ofensores"); XLSX.writeFile(wb, "Relatorio_Ofensores.xlsx"); }
+
+function clearChecklistFilters(){
+document.getElementById('filterRegional').value='TODOS';
+document.getElementById('filterStatus').value='TODOS';
+document.querySelectorAll('#dd-svc-checklist input').forEach(i => i.checked = false);
+updateCheckUI(dashData);
+}
+</script>
 </body>
 </html>
