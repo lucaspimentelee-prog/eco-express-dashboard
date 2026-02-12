@@ -250,8 +250,9 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 <div class="container">
 
 <div class="controls-ofensores">
-<div style="width:100%; display:flex; justify-content:flex-end; margin-bottom:10px;">
+<div style="width:100%; display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-bottom:10px;">
 <div id="ofensores-period-badge" style="font-size:12px; color:#666; background:#f5f5f5; padding:5px 12px; border-radius:4px; border:1px solid #e0e0e0;"></div>
+<div id="ofensores-filter-badge" style="display:none; font-size:12px; color:#444; background:#fff3e0; padding:5px 12px; border-radius:4px; border:1px solid #ffe0b2;"></div>
 </div>
 
 <div style="flex:1;"><label style="font-size:12px; font-weight:bold; color:#555;">Nome:</label><input type="text" id="of-search" class="filter-input" placeholder="Buscar..." onkeyup="renderOfensores()"></div>
@@ -935,6 +936,38 @@ const fmt = (d) => d.toLocaleDateString('pt-BR');
 document.getElementById('ofensores-period-badge').innerHTML = `📅 <b>Período Base (3 Meses):</b> ${fmt(start)} até ${fmt(end)}`;
 }
 
+function updateOfensoresFilterIndicator(inputIni, inputFim) {
+  const badge = document.getElementById('ofensores-filter-badge');
+  if (!badge) return;
+
+  // Mostra apenas quando estiver em "Somente Período" ou "Comparar"
+  if (ofensoresViewMode === '3M') {
+    badge.style.display = 'none';
+    return;
+  }
+
+  // Se usuário não setou datas, o sistema usa default últimos 7 dias
+  let iniDate, fimDate;
+  if (inputIni && inputFim) {
+    iniDate = parseDateAny(inputIni);
+    fimDate = parseDateAny(inputFim);
+  } else {
+    const hoje = new Date();
+    const passado = new Date();
+    passado.setDate(hoje.getDate() - 7);
+    // Força meio-dia para consistência visual
+    passado.setHours(12,0,0,0);
+    hoje.setHours(12,0,0,0);
+    iniDate = passado;
+    fimDate = hoje;
+  }
+
+  const fmt = (d) => d.toLocaleDateString('pt-BR');
+  badge.innerHTML = `🔎 <b>Período Filtrado:</b> ${fmt(iniDate)} até ${fmt(fimDate)}`;
+  badge.style.display = 'block';
+}
+
+
 // Função para trocar modo de visualização
 function changeViewMode(mode) {
 ofensoresViewMode = mode;
@@ -1037,6 +1070,9 @@ passado.setDate(hoje.getDate() - 7);
 iniKey = ymdKey(passado);
 fimKey = ymdKey(hoje);
 }
+
+// Atualiza indicador do período filtrado (Somente Período / Comparar)
+updateOfensoresFilterIndicator(inputIni, inputFim);
 
 // 2. Filtros Comuns (Nome e SVC e ToggleChart) aplicados à Base 3 Meses PRIMEIRO
 const svcsManual = getSelectedValues('dd-svc-of');
