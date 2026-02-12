@@ -260,6 +260,19 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 <button class="multi-select-btn" onclick="toggleDropdown('dd-svc-of')">🏢 Selecionar SVCs <i class="fas fa-chevron-down"></i></button>
 <div id="dd-svc-of" class="multi-select-dropdown"></div>
 </div>
+
+<div style="width: 100px;">
+<label style="font-size:12px; font-weight:bold; color:#555;">Semana:</label>
+<select id="of-week-select" class="filter-input" onchange="applyWeekFilter()">
+<option value="TODAS">Todas</option>
+<option value="1">Week 1</option>
+<option value="2">Week 2</option>
+<option value="3">Week 3</option>
+<option value="4">Week 4</option>
+<option value="5">Week 5</option>
+</select>
+</div>
+
 <div><label style="font-size:12px; font-weight:bold; color:#555;">Início:</label><br><input type="date" id="of-date-ini" class="filter-input" onchange="renderOfensores()"></div>
 <div><label style="font-size:12px; font-weight:bold; color:#555;">Fim:</label><br><input type="date" id="of-date-fim" class="filter-input" onchange="renderOfensores()"></div>
 
@@ -373,9 +386,6 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 // Configuração Global do Chart DataLabels
 Chart.register(ChartDataLabels);
 
-// 🔹 REGRA DE NEGÓCIO: VELOCIDADE (Excesso > 8%)
-const SPEED_EXCESS_THRESHOLD = 8;
-
 // Helper seguro para converter strings/floats "8,5%" em float 8.5
 function parseNum(v) {
 if (typeof v === 'number') return v;
@@ -384,11 +394,6 @@ if (!v) return 0;
 let s = String(v).replace(',', '.').replace('%', '').trim();
 let n = parseFloat(s);
 return isNaN(n) ? 0 : n;
-}
-
-// Verifica se houve excesso (retorna booleano)
-function isSpeedExcess(val) {
-return parseNum(val) > SPEED_EXCESS_THRESHOLD;
 }
 
 /* --- DATA PARSING ROBUSTO & KEY --- */
@@ -576,8 +581,8 @@ if (tipo === 'SCORECARD') {
 summary.accel += parseNum(d.ac);
 summary.brake += parseNum(d.fr);
 summary.corner += parseNum(d.cu);
-// 🔹 FIX MODAL: Contar ocorrência de velocidade
-if (isSpeedExcess(d.ve)) summary.speed += 1;
+// 🔹 CORREÇÃO: Soma direta de VEL
+summary.speed += parseNum(d.ve);
 summary.seatbelt += parseNum(d.cin);
 }
 });
@@ -848,9 +853,6 @@ const colMap = {};
 cols.forEach((c, i) => {
 if(c.label) {
 let label = c.label.trim().toUpperCase();
-// Fallback para variações comuns
-if(label === 'ACELERAÇÃO' || label === 'ACELERACAO') label = 'ACEL';
-if(label === 'FREIADA' || label === 'FREADA') label = 'FRE';
 colMap[label] = i;
 }
 });
@@ -859,10 +861,11 @@ let rawData = rows.map(r => {
 // Helper para buscar com segurança (f ?? v)
 const getV = (key) => {
 let idx = -1;
-// Alias Map
-if (key === 'ACEL') idx = colMap['ACEL'] ?? colMap['ACELERACAO'] ?? colMap['ACELERAÇÃO'] ?? 8;
-else if (key === 'FRE') idx = colMap['FRE'] ?? colMap['FREADA'] ?? colMap['FREIADA'] ?? 9;
-else if (key === 'VEL') idx = colMap['VELOCIDADE'] ?? colMap['VEL'] ?? 11;
+// Fallback ROBUSTO de índice fixo conforme solicitação (A=0 ... M=12)
+// I=ACEL(8), J=FRE(9), K=CURVA(10), L=VEL(11), M=CINTO(12)
+if (key === 'ACEL') idx = colMap['ACEL'] ?? colMap['ACELERACAO'] ?? 8;
+else if (key === 'FRE') idx = colMap['FRE'] ?? colMap['FREADA'] ?? 9;
+else if (key === 'VEL') idx = colMap['VEL'] ?? colMap['VELOCIDADE'] ?? 11;
 else if (key === 'CINTO') idx = colMap['CINTO'] ?? 12;
 else if (key === 'CURVA') idx = colMap['CURVA'] ?? 10;
 else idx = colMap[key];
@@ -878,9 +881,16 @@ else if(key === 'TIPO') idx = 5;
 else if(key === 'VALOR') idx = 6;
 }
 
-// Prioridade para valor formatado se for texto, valor bruto se numérico
+// Prioridade para valor bruto, mas PARA VEL prioriza o formatado (ex: "8%")
 if (r.c[idx]) {
-return r.c[idx].v !== undefined ? r.c[idx].v : (r.c[idx].f || '');
+  // 🔥 FIX VEL: se a célula vier como percentual, .v costuma ser 0.08 e .f "8%"
+  if (key === 'VEL') {
+    return (r.c[idx].f !== undefined && r.c[idx].f !== null && r.c[idx].f !== '')
+      ? r.c[idx].f
+      : (r.c[idx].v !== undefined ? r.c[idx].v : '');
+  }
+
+  return r.c[idx].v !== undefined ? r.c[idx].v : (r.c[idx].f || '');
 }
 return '';
 };
@@ -935,6 +945,52 @@ if(mode === 'COMPARE') document.getElementById('btnModeCompare').classList.add('
 renderOfensores();
 }
 
+// 🔹 APLICAÇÃO DO FILTRO DE SEMANA
+function applyWeekFilter() {
+const sel = document.getElementById('of-week-select');
+const val = sel.value;
+
+if (val === 'TODAS') {
+document.getElementById('of-date-ini').value = '';
+document.getElementById('of-date-fim').value = '';
+} else {
+// Força visualização modo PERIODO para ver o resultado
+if(ofensoresViewMode !== 'PERIODO') changeViewMode('PERIODO');
+
+const weekNum = parseInt(val);
+const now = new Date();
+// 1º dia do mês atual
+const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+
+// Encontrar o primeiro Domingo do mês (Start of Week 1)
+let current = new Date(firstDay);
+// Se já for domingo (0), mantém. Se não, avança até achar.
+while(current.getDay() !== 0) {
+current.setDate(current.getDate() + 1);
+}
+
+// Avança para a semana selecionada (Week 1 = +0 dias, Week 2 = +7 dias...)
+current.setDate(current.getDate() + (weekNum - 1) * 7);
+
+const ini = new Date(current);
+const fim = new Date(current);
+fim.setDate(fim.getDate() + 6); // Sábado
+
+// Formata para o input YYYY-MM-DD
+const fmt = d => {
+const y = d.getFullYear();
+const m = String(d.getMonth()+1).padStart(2,'0');
+const day = String(d.getDate()).padStart(2,'0');
+return `${y}-${m}-${day}`;
+};
+
+document.getElementById('of-date-ini').value = fmt(ini);
+document.getElementById('of-date-fim').value = fmt(fim);
+}
+
+renderOfensores();
+}
+
 // 🔹 Função Helper para Agregação de Dados CORRIGIDA
 function aggregateDrivers(dataSet) {
 const map = {};
@@ -947,16 +1003,12 @@ map[d.nome].count++; map[d.nome].hist.push(d.dt);
 const tipo = normalizeString(d.tipo);
 
 if(tipo === 'SCORECARD') {
-// Soma de eventos
+// Soma de eventos (CORRIGIDO: SOMA DIRETA)
 map[d.nome].infra.acel += parseNum(d.ac);
-map[d.nome].infra.fre += parseNum(d.fr);
-map[d.nome].infra.cur += parseNum(d.cu);
-map[d.nome].infra.cin += parseNum(d.cin);
-
-// 🔹 FIX: VELOCIDADE É CONTADOR DE EVENTOS > 8%
-if (isSpeedExcess(d.ve)) {
-map[d.nome].infra.vel += 1;
-}
+map[d.nome].infra.fre  += parseNum(d.fr);
+map[d.nome].infra.cur  += parseNum(d.cu);
+map[d.nome].infra.cin  += parseNum(d.cin);
+map[d.nome].infra.vel  += parseNum(d.ve); // VEL é soma, não contador
 }
 else if (tipo === 'PCML') { map[d.nome].pcml_secs += timeToSeconds(d.val); }
 });
@@ -1026,7 +1078,7 @@ sum += parseNum(d.ac);
 sum += parseNum(d.fr);
 sum += parseNum(d.cu);
 sum += parseNum(d.cin);
-if(isSpeedExcess(d.ve)) sum += 1;
+sum += parseNum(d.ve); // VEL direto
 return acc + sum;
 }, 0);
 document.getElementById('of-tele-count').innerText = infraSum;
